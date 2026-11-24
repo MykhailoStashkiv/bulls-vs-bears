@@ -96,6 +96,10 @@ html,body{overflow-x:hidden}
 .dbtns{display:flex;gap:8px;margin-top:10px}.dbtns button{flex:1;border:1px solid #3a2f66;background:#1d1838;color:var(--txt);border-radius:12px;padding:12px 6px;font:900 14.5px Inter,sans-serif;cursor:pointer}
 .dbtns button.pri{background:linear-gradient(135deg,#7b5cff,#5a3df0);border:0}
 .dmsg{margin-top:8px;font-size:13px;font-weight:800;color:var(--mut);min-height:18px;text-align:center}
+.lvls{display:flex;gap:6px;margin-top:8px}.lvls button{flex:1;border:1px solid #2c3350;background:#0b0d14;color:var(--mut);border-radius:10px;padding:7px 4px;font:800 12.5px Inter,sans-serif;cursor:pointer}
+.lvls button.on{border-color:var(--y);color:var(--y)}.lvls button:disabled{opacity:.45}
+.tmr.hot{color:var(--r)!important;animation:tmrP .5s ease-in-out infinite alternate}@keyframes tmrP{to{transform:scale(1.25)}}
+#vBattle.final{box-shadow:0 0 0 3px #ff3b5c,0 0 30px #ff3b5c88;border-radius:16px;animation:finP .5s ease-in-out infinite alternate}@keyframes finP{to{box-shadow:0 0 0 3px #ffc43d,0 0 40px #ffc43d88}}
 .lb2{margin-top:10px;background:#0b0d14;border-radius:12px;padding:8px 10px;font-size:13px;font-weight:800}
 .lb2 div{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #1b2030}.lb2 div:last-child{border:0}
 /* ---- широкий екран (десктоп / повний екран) ---- */
@@ -140,6 +144,7 @@ body.wide .logo{font-size:22px}
     <button class="tapbtn" id="bTap">👆 ТАП!</button>
     <div class="dmsg" id="dM">Тапай швидше за друга й штовхай лінію. Ціна теж тисне: зростає — допомагає 🐂, падає — допомагає 🐻. Тапни по полю зліва чи справа від лінії — і поштовхай її просто так.</div>
     <div class="dbtns" id="dBtns"><button class="pri" id="bDuel">👥 Кинути виклик другу</button><button id="bBot">🤖 Грати з ботом</button></div>
+    <div class="lvls" id="dLv"></div><button class="share" id="bRe" style="display:none;background:linear-gradient(135deg,#ffc43d,#ff9a1f);color:#07080c;border:0">🔁 Реванш</button>
     <div class="lb2" id="dTop"></div>
   </div>
   <div class="game" id="game"><div class="gt"><span>🎯 Раунд 60 с: куди піде ціна?</span><span class="gs">🏆 <b id="gW">0</b> · 🔥 <b id="gS">0</b></span></div>
@@ -168,6 +173,8 @@ function LS(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorag
 var LANG=(function(){var c=(TG&&TG.initDataUnsafe&&TG.initDataUnsafe.user&&TG.initDataUnsafe.user.language_code)||navigator.language||"en";c=(c||"en").toLowerCase();var f=LS("tgb_lang");if(f)return f;return /^(uk|ru|be)/.test(c)?"uk":"en"})();
 var EN=LANG==="en";
 var DICT=[
+["Новачок","Rookie"],["Трейдер","Trader"],["Кит","Whale"],["🤖 Бот: ","🤖 Bot: "],["🔁 Реванш","🔁 Rematch"],["🕹️ Останні ігри","🕹️ Last games"],
+["Відкрито нового бота: ","New bot unlocked: "],["він тапає швидше — спробуй перетапати","it taps faster — try to beat it"],["🤖 Ти — 🐂 бики, бот ","🤖 You're 🐂 bulls, bot "],["🤖 Ти — 🐻 ведмеді, бот ","🤖 You're 🐻 bears, bot "],[". Погнали!",". Go!"],["👥 Друг","👥 Friend"],
 ["Тапай швидше за друга й штовхай лінію. Ціна теж тисне: зростає — допомагає 🐂, падає — допомагає 🐻. Тапни по полю зліва чи справа від лінії — і поштовхай її просто так.","Tap faster than your friend and push the line. Price pushes too: up helps 🐂, down helps 🐻. Tap the field left or right of the line to push it anytime."],["Твої тапи: 🐂 ","Your taps: 🐂 "],["тапи штовхають лінію; реальну ціну вони не змінюють","taps push the line; they don't change the real price"],
 ["👊 Перетапай друга за 60 с","👊 Out-tap a friend in 60 s"],["👥 Кинути виклик другу","👥 Challenge a friend"],["🤖 Грати з ботом","🤖 Play vs bot"],
 ["👆 ТАП ЗА 🐂!","👆 TAP FOR 🐂!"],["Тапай швидше!","Tap faster!"],["Готуйся…","Get ready…"],["Тапай!","Tap!"],["Тапни свою сторону","Tap your side"],["🐂 Ти за биків! Тепер кидай виклик або грай з ботом.","🐂 You're a bull! Now challenge a friend or play the bot."],["🐻 Ти за ведмедів! Тепер кидай виклик або грай з ботом.","🐻 You're a bear! Now challenge a friend or play the bot."],["🤖 Ти — 🐂 бики, бот — 🐻 ведмеді. Погнали!","🤖 You're 🐂 bulls, bot plays 🐻 bears. Go!"],["🤖 Ти — 🐻 ведмеді, бот — 🐂 бики. Погнали!","🤖 You're 🐻 bears, bot plays 🐂 bulls. Go!"],["🔥 Друг на місці! Ти — 🐻 ведмеді.","🔥 Your friend is here! You're 🐻 bears."],["🔥 Ти — 🐂 бики. Перетапай!","🔥 You're 🐂 bulls. Out-tap them!"],["🐂 Суперник","🐂 Rival"],["Бот","Bot"],["👆 ТАП ЗА 🐻!","👆 TAP FOR 🐻!"],["👆 ТАП!","👆 TAP!"],
@@ -482,45 +489,56 @@ var MYS=LS("bb_side")==="s"?"s":"b";var D={on:false,live:false,mode:null,me:"b",
 function duelOn(){return typeof D!=="undefined"&&D.on}
 var DS={w:+(LS("bb_w")||0),g:+(LS("bb_g")||0),best:+(LS("bb_best")||0),st:+(LS("bb_st")||0)};
 function dSave(){LS("bb_w",DS.w);LS("bb_g",DS.g);LS("bb_best",DS.best);LS("bb_st",DS.st)}
-function dTop(){$("dRec").textContent="🏆 "+DS.w+" перемог";$("dTop").innerHTML="<div><span>🏆 Перемог</span><span>"+DS.w+" / "+DS.g+"</span></div><div><span>🔥 Серія зараз</span><span>"+DS.st+"</span></div><div><span>👆 Рекорд тапів за раунд</span><span>"+DS.best+"</span></div>"}
+function dTop(){$("dRec").textContent="🏆 "+DS.w+" перемог";$("dTop").innerHTML="<div><span>🏆 Перемог</span><span>"+DS.w+" / "+DS.g+"</span></div><div><span>🔥 Серія зараз</span><span>"+DS.st+"</span></div><div><span>👆 Рекорд тапів за раунд</span><span>"+DS.best+"</span></div>"+(DH.length?"<div><span>🕹️ Останні ігри</span><span>"+DH.map(function(x){return (x.r==="W"?"✅ ":"❌ ")+x.s}).join(" · ")+"</span></div>":"")}
 function dMsg(s){$("dM").innerHTML=s}
 function dUI(){var rem=D.live?Math.max(0,60-(Date.now()-D.t0)/1000):60;$("dTm").textContent=Math.ceil(rem);$("dTB").textContent=D.tb;$("dTS").textContent=D.ts;
  var me=D.on?D.me:MYS,mineB=me==="b",opp=D.mode==="bot"?"Бот":"Суперник";$("dNB").textContent=mineB?"🐂 Ти":"🐂 "+opp;$("dNS").textContent=mineB?"🐻 "+opp:"🐻 Ти";
  $("bTap").className="tapbtn"+(mineB?"":" bear");$("bTap").textContent=mineB?"👆 ТАП ЗА 🐂!":"👆 ТАП ЗА 🐻!";$("dBtns").style.visibility=D.on?"hidden":"visible"}
 function dFront(){var tot=D.tb+D.ts,taps=Math.max(-.36,Math.min(.36,(D.tb-D.ts)/(24+tot*.1)));return Math.max(.06,Math.min(.94,.5+taps+D.mp))}
 function dMarket(){var w=win(10000),t=w.b+w.s;D.mp=t?((w.b-w.s)/t)*.1:0}
-function dStart(mode,me){D.on=true;D.live=false;D.mode=mode;D.me=me;D.tb=0;D.ts=0;D.mp=0;dUI();var n=3;
+function dStart(mode,me){$("dLv").style.visibility="hidden";D.on=true;D.live=false;D.mode=mode;D.me=me;D.tb=0;D.ts=0;D.mp=0;dUI();var n=3;
  (function cd(){if(!D.on)return;if(n>0){fxAdd("fx-title y",String(n),900,{color:"#ffc43d"});haptic("medium");n--;setTimeout(cd,900)}else{fxAdd("fx-title "+(D.me==="b"?"g":"r"),"ТАП!",900);haptic("heavy");D.live=true;D.t0=Date.now();dMsg("Тапай! Ціна теж штовхає лінію 📈📉")}})()}
 function dTapLocal(side){if(side==="b")D.tb++;else D.ts++}
 function duelTap(ev){if(!D.live)return;haptic("light");var X=front*FW,y=ev&&ev.clientY?((ev.clientY-F.getBoundingClientRect().top)*DPR):FH*(.2+Math.random()*.6);burst(X,y,D.me==="b"?"#00f593":"#ff3b5c",10,4);
- if(D.mode==="guest"){if(D.conn&&D.conn.open)D.conn.send({t:"tap"})}dTapLocal(D.me);
+ var k=fzTap();tapSnd();if(D.mode==="guest"){if(D.conn&&D.conn.open)D.conn.send({t:"tap",n:k})}dTapLocal(D.me);if(k===2)dTapLocal(D.me);
  var mine=D.me==="b"?D.tb:D.ts;if(mine%10===0)chargers.push({buy:D.me==="b",x:D.me==="b"?-40*DPR:FW+40*DPR,y:FH*(.25+Math.random()*.5),sz:Math.round(54*DPR),v:(D.me==="b"?1:-1)*7*DPR,lab:"×"+mine,ph:0,fan:true})}
 
-function dEnd(w){if(!D.on)return;D.live=false;D.on=false;var won=w===D.me;DS.g++;var mine=D.me==="b"?D.tb:D.ts;if(mine>DS.best)DS.best=mine;if(won){DS.w++;DS.st++}else DS.st=0;dSave();dTop();
+function dEnd(w){if(!D.on)return;D.live=false;D.on=false;var won=w===D.me;DS.g++;var vs=D.mode==="bot"?"🤖 "+BOTS[BL.s].n:"👥 Друг";DH.unshift({r:won?"W":"L",s:D.tb+":"+D.ts,v:vs});DH=DH.slice(0,5);LS("bb_hist",JSON.stringify(DH));if(won&&D.mode==="bot"&&BL.s===BL.u&&BL.u<2){BL.u++;BL.s=BL.u;LS("bb_lvl",BL.u);setTimeout(function(){fxAdd("fx-title y","🔓 "+BOTS[BL.u].e+" "+BOTS[BL.u].n,1800,{color:"#ffc43d","font-size":"clamp(28px,6vw,60px)"});event("y","🔓","Відкрито нового бота: "+BOTS[BL.u].n,"він тапає швидше — спробуй перетапати",true,0)},2600)}D.last=D.mode;var mine=D.me==="b"?D.tb:D.ts;if(mine>DS.best)DS.best=mine;if(won){DS.w++;DS.st++}else DS.st=0;dSave();dTop();
  if(D.mode==="host"&&D.conn&&D.conn.open)D.conn.send({t:"end",w:w,tb:D.tb,ts:D.ts});
  if(won){bigFX(D.me==="b",0,DS.st>=3?3:2,(DS.st>=3?"🔥 СЕРІЯ "+DS.st+"!":"🏆 ПЕРЕМОГА!")+"<small>"+mine+" тапів</small>");dMsg("🏆 <b style='color:var(--g)'>Ти перетапав!</b> "+D.tb+" : "+D.ts+". Кинь виклик ще комусь 👇")}
  else{shakeField();haptic("heavy");dMsg("😤 <b style='color:var(--r)'>Програв</b> "+D.tb+" : "+D.ts+". Реванш?")}
- setTimeout(function(){D.mode=null;D.on=false;$("dTm").textContent="60"},400);if(D.conn){var c=D.conn;setTimeout(function(){try{c.close()}catch(e){}},1500)}if(D.peer){var p=D.peer;setTimeout(function(){try{p.destroy()}catch(e){}},2000)}D.conn=null;D.peer=null}
-setInterval(function(){if(!D.on)return;if(D.mode!=="guest"&&D.live){dMarket();if(D.mode==="bot"){D.bot+=0.1*(4.2+Math.random()*3.2+((D.me==="b"?D.ts<D.tb-15:D.tb<D.ts-15)?2.5:0));while(D.bot>=1){D.bot--;dTapLocal(D.me==="b"?"s":"b")}}}
+ setTimeout(function(){D.mode=null;D.on=false;$("dTm").textContent="60";$("bRe").style.display=(D.last==="bot"||D.last==="host")?"":"none";lvUI()},400);if(D.conn){var c=D.conn;setTimeout(function(){try{c.close()}catch(e){}},1500)}if(D.peer){var p=D.peer;setTimeout(function(){try{p.destroy()}catch(e){}},2000)}D.conn=null;D.peer=null}
+setInterval(function(){if(!D.on)return;if(D.mode!=="guest"&&D.live){dMarket();if(D.mode==="bot"){D.bot+=0.1*(BOTS[BL.s].r*(.8+Math.random()*.4)+((D.me==="b"?D.ts<D.tb-15:D.tb<D.ts-15)?2.5:0));while(D.bot>=1){D.bot--;dTapLocal(D.me==="b"?"s":"b")}}}
  if(D.mode!=="guest"){D.f=dFront();if(D.live)frontT=D.f;var rem=Math.max(0,60-(Date.now()-D.t0)/1000);if(D.mode==="host"&&D.conn&&D.conn.open&&D.live)D.conn.send({t:"st",tb:D.tb,ts:D.ts,f:D.f,rem:rem});if(D.live&&rem<=0)dEnd(D.f>=.5?"b":"s")}
  else if(D.live)frontT=D.f;dUI()},100);
 function dCode(){var a="abcdefghjkmnpqrstuvwxyz23456789",s="";for(var i=0;i<6;i++)s+=a[Math.floor(Math.random()*a.length)];return s}
 function dLink(code){return "https://t.me/BullBearLiveBot?startapp=duel_"+code}
 function dShare(code){var t=EN?"👊 I challenge you: out-tap me in 60 seconds! Bulls vs Bears — the market helps one side 🐂⚔️🐻":"👊 Кидаю виклик: перетапай мене за 60 секунд! Бики проти ведмедів — і ринок допомагає одній стороні 🐂⚔️🐻",u="https://t.me/share/url?url="+encodeURIComponent(dLink(code))+"&text="+encodeURIComponent(t);try{if(TG&&TG.openTelegramLink)TG.openTelegramLink(u);else window.open(u,"_blank")}catch(e){window.open(u,"_blank")}}
-$("bDuel").onclick=function(){if(typeof Peer==="undefined"){dMsg("⚠️ Не вдалось завантажити модуль дуелей. Перевір інтернет.");return}var code=dCode();D.code=code;D.mode="host";D.me=MYS;dMsg("⏳ Створюю кімнату…");dUI();$("dBtns").style.visibility="hidden";
+$("bDuel").onclick=function(){$("bRe").style.display="none";if(typeof Peer==="undefined"){dMsg("⚠️ Не вдалось завантажити модуль дуелей. Перевір інтернет.");return}var code=dCode();D.code=code;D.mode="host";D.me=MYS;dMsg("⏳ Створюю кімнату…");dUI();$("dBtns").style.visibility="hidden";
  var p=new Peer("bullbear-"+code);D.peer=p;p.on("open",function(){dMsg("✅ Кімната <b>"+code+"</b> готова. Надішли виклик другу — гра стартує, щойно він відкриє посилання. <a href='#' id='dRe' style='color:var(--y)'>Надіслати ще раз</a> · <a href='#' id='dCx' style='color:var(--mut)'>Скасувати</a>");dShare(code);
   setTimeout(function(){var a=$("dRe"),b=$("dCx");if(a)a.onclick=function(e){e.preventDefault();dShare(code)};if(b)b.onclick=function(e){e.preventDefault();try{p.destroy()}catch(x){}D.peer=null;D.mode=null;dMsg("Скасовано.");dUI()}},50)});
- p.on("connection",function(c){if(D.conn){c.close();return}D.conn=c;c.on("open",function(){c.send({t:"go",coin:COIN,side:MYS});dMsg(MYS==="b"?"🔥 Друг на місці! Ти — 🐂 бики.":"🔥 Друг на місці! Ти — 🐻 ведмеді.");dStart("host",MYS)});c.on("data",function(m){if(m&&m.t==="tap"&&D.live){if(D.me==="b")D.ts++;else D.tb++}});c.on("close",function(){if(D.on&&D.live){dMsg("Друг вийшов — перемога за тобою.");dEnd(D.me)}})});
+ p.on("connection",function(c){if(D.conn){c.close();return}D.conn=c;c.on("open",function(){c.send({t:"go",coin:COIN,side:MYS});dMsg(MYS==="b"?"🔥 Друг на місці! Ти — 🐂 бики.":"🔥 Друг на місці! Ти — 🐻 ведмеді.");dStart("host",MYS)});c.on("data",function(m){if(m&&m.t==="tap"&&D.live){var k=m.n===2?2:1;if(D.me==="b")D.ts+=k;else D.tb+=k}});c.on("close",function(){if(D.on&&D.live){dMsg("Друг вийшов — перемога за тобою.");dEnd(D.me)}})});
  p.on("error",function(e){dMsg("⚠️ Помилка з'єднання: "+(e.type||e)+". Спробуй ще раз.");D.mode=null;$("dBtns").style.visibility="visible"})};
-$("bBot").onclick=function(){dMsg(MYS==="b"?"🤖 Ти — 🐂 бики, бот — 🐻 ведмеді. Погнали!":"🤖 Ти — 🐻 ведмеді, бот — 🐂 бики. Погнали!");dStart("bot",MYS)};
+$("bRe").onclick=function(){$("bRe").style.display="none";if(D.last==="bot")$("bBot").click();else if(D.last==="host")$("bDuel").click()};
+$("bBot").onclick=function(){$("bRe").style.display="none";dMsg((MYS==="b"?"🤖 Ти — 🐂 бики, бот ":"🤖 Ти — 🐻 ведмеді, бот ")+BOTS[BL.s].e+" "+BOTS[BL.s].n+". Погнали!");dStart("bot",MYS)};
 function dJoin(code){if(typeof Peer==="undefined"){dMsg("⚠️ Модуль дуелей не завантажився.");return}D.mode="guest";dUI();dMsg("⏳ Підключаюсь до кімнати "+code+"…");$("dBtns").style.visibility="hidden";var p=new Peer();D.peer=p;
  p.on("open",function(){var c=p.connect("bullbear-"+code,{reliable:true});D.conn=c;c.on("data",function(m){if(!m)return;if(m.t==="go"){if(m.coin&&m.coin!==COIN&&COINS[m.coin])setCoin(m.coin);var gs=m.side==="s"?"b":"s";dMsg(gs==="b"?"🔥 Ти — 🐂 бики. Перетапай!":"🔥 Ти — 🐻 ведмеді. Перетапай!");dStart("guest",gs)}else if(m.t==="st"){D.f=m.f;if(D.me==="s"){D.tb=m.tb;if(m.ts>D.ts)D.ts=m.ts}else{D.ts=m.ts;if(m.tb>D.tb)D.tb=m.tb}D.t0=Date.now()-(60-m.rem)*1000}else if(m.t==="end"){D.tb=m.tb;D.ts=m.ts;dEnd(m.w)}});
   c.on("close",function(){if(D.on){dMsg("З'єднання закрилось.");D.on=false;D.live=false;D.mode=null;dUI()}})});
  p.on("error",function(e){dMsg("⚠️ Кімнату не знайдено або вона вже закрита ("+(e.type||e)+"). Попроси друга створити новий виклик.");D.mode=null;$("dBtns").style.visibility="visible"})}
 (function(){var sp=(TG&&TG.initDataUnsafe&&TG.initDataUnsafe.start_param)||"",m=/^duel_([a-z0-9]{6})$/.exec(sp)||/duel=([a-z0-9]{6})/.exec(location.hash);if(m)setTimeout(function(){dJoin(m[1])},600)})();
-dTop();dUI();
+dTop();dUI();lvUI();
 var lastTap=0;function handUpd(){var hd=$("hand");if(!hd)return;var mineB=(D.on?D.me:MYS)==="b";hd.className=(mineB?"":"bear")+(Date.now()-lastTap<4000?" off":"");hd.style.left=mineB?"28%":"72%";hd.querySelector("b").textContent=D.on?(D.live?"Тапай швидше!":"Готуйся…"):"Тапни свою сторону"}setInterval(handUpd,300);
 function shakeField(){var v=$("vBattle");v.classList.remove("fx-shake");void v.offsetWidth;v.classList.add("fx-shake")}
+
+/* ---------- рівні ботів, frenzy, фінал, історія ---------- */
+var BOTS=[{n:"Новачок",e:"🐣",r:4.2},{n:"Трейдер",e:"📈",r:6.2},{n:"Кит",e:"🐋",r:8.4}];
+var BL={u:Math.min(2,+(LS("bb_lvl")||0)),s:0};BL.s=BL.u;
+function lvUI(){var h2="";for(var i=0;i<3;i++)h2+='<button data-l="'+i+'" class="'+(i===BL.s?"on":"")+'" '+(i>BL.u?"disabled":"")+'>'+(i>BL.u?"🔒 ":BOTS[i].e+" ")+BOTS[i].n+'</button>';$("dLv").innerHTML=h2;var bs=$("dLv").querySelectorAll("button");for(var k=0;k<bs.length;k++)bs[k].onclick=function(){BL.s=+this.dataset.l;lvUI();haptic("sel")};$("bBot").textContent="🤖 Бот: "+BOTS[BL.s].n;$("dLv").style.visibility=D.on?"hidden":"visible"}
+var FZ={ts:[],until:0};
+function fzTap(){var n=Date.now();FZ.ts.push(n);while(FZ.ts.length&&n-FZ.ts[0]>1000)FZ.ts.shift();if(FZ.ts.length>=8&&n>FZ.until){FZ.until=n+3000;fxAdd("fx-title y","🔥 FRENZY ×2",1100,{color:"#ffc43d","font-size":"clamp(30px,7vw,70px)"});haptic("heavy")}return n<FZ.until?2:1}
+function tapSnd(){if(!sndOn)return;try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();var o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.type="square";o.frequency.setValueAtTime(D.me==="b"?660:520,t);g.gain.setValueAtTime(.035,t);g.gain.exponentialRampToValueAtTime(.0001,t+.05);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.06)}catch(e){}}
+var DH=[];try{DH=JSON.parse(LS("bb_hist")||"[]")}catch(e){DH=[]}
+var lastSec=-1;setInterval(function(){var tm=$("dTm"),vb=$("vBattle");if(!D.live){tm.classList.remove("hot");vb.classList.remove("final");lastSec=-1;return}var rem=Math.max(0,60-(Date.now()-D.t0)/1000),s=Math.ceil(rem);if(rem<=10){tm.classList.add("hot");vb.classList.add("final");if(s!==lastSec){lastSec=s;haptic("light");if(sndOn)beep(D.f>=.5?1:-1,false)}}},100);
 /* ---------- великі ефекти ---------- */
 var fxBusy=0;function fxAdd(cls,html,ms,css){var e=document.createElement("div");e.className="a "+cls;e.innerHTML=html;if(css)for(var k in css)e.style.setProperty(k,css[k]);$("fxo").appendChild(e);setTimeout(function(){e.remove()},ms);return e}
 function bigFX(buy,usd,R,title){var n=Date.now();if(n<fxBusy)return;fxBusy=n+3500;R=Math.max(1,R||1);
