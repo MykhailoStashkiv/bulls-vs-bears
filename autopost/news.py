@@ -138,13 +138,15 @@ Write the post IN UKRAINIAN, in this exact structure, plain text, emojis welcome
 Return only the post text."""
     body = json.dumps({
         "model": os.environ.get("AI_MODEL", "claude-haiku-5-5"),
-        "max_tokens": 700,
+        "max_tokens": 1500,
         "messages": [{"role": "user", "content": prompt}],
     }).encode()
     try:
         r = json.loads(fetch("https://api.anthropic.com/v1/messages", data=body, headers={
             "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json"}, timeout=60))
-        return "".join(b.get("text", "") for b in r.get("content", [])).strip()
+        txt = "".join(b.get("text", "") for b in r.get("content", []) if b.get("type") == "text").strip()
+        print("ШІ: модель", r.get("model"), "| stop:", r.get("stop_reason"), "| блоки:", [b.get("type") for b in r.get("content", [])], "| символів:", len(txt))
+        return txt
     except urllib.error.HTTPError as e:
         print("ШІ не відповів:", e.code, e.read()[:300])
     except Exception as e:  # noqa: BLE001
