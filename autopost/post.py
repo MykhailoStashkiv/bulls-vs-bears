@@ -178,9 +178,21 @@ def send(token, chat, photo, text):
                 raise
             wait = int((info.get("parameters") or {}).get("retry_after", 30)) + 2
             print(f"чекаю {wait} с і пробую ще раз")
-            time.sleep(min(wait, 240))
+            time.sleep(min(wait, 90))
     if not res.get("ok"):
         raise RuntimeError(res)
+
+
+def send_text(token, chat, text):
+    markup = json.dumps({"inline_keyboard": [[{"text": "⚔️ Open the battle / Відкрити битву", "url": BOT_URL}]]})
+    data = urllib.parse.urlencode({"chat_id": chat, "text": text, "parse_mode": "HTML", "reply_markup": markup, "disable_web_page_preview": "true"}).encode()
+    req = urllib.request.Request(f"https://api.telegram.org/bot{token}/sendMessage", data=data)
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            print(json.loads(r.read()).get("ok"))
+    except urllib.error.HTTPError as e:
+        print("sendMessage:", e.code, e.read()[:300])
+        raise
 
 
 def main():
@@ -197,7 +209,17 @@ def main():
     token = os.environ.get("TG_TOKEN")
     if not token:
         sys.exit("TG_TOKEN не задано")
-    send(token, os.environ.get("TG_CHANNEL", "@BullBearLive"), "battle.png", text)
+    chat = os.environ.get("TG_CHANNEL", "@BullBearLive")
+    try:
+        me = get(f"https://api.telegram.org/bot{token}/getMe")
+        print("бот:", (me.get("result") or {}).get("username"))
+    except Exception as e:  # noqa: BLE001
+        print("getMe не вдався:", e)
+    try:
+        send(token, chat, "battle.png", text)
+    except Exception as e:  # noqa: BLE001
+        print("фото не пройшло, надсилаю текстом:", e)
+        send_text(token, chat, text)
     print("опубліковано")
 
 
