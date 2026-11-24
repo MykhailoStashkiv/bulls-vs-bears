@@ -5,6 +5,11 @@ on:
     - cron: "23 1,5,9,13,17,21 * * *"
     - cron: "53 3,11,19 * * *"
   workflow_dispatch:
+    inputs:
+      test:
+        description: "Тест: показати пост у лозі без публікації (ігнорує вже опубліковані)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -28,6 +33,8 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TG_CHANNEL: "@BullBearLive"
           PYTHONUNBUFFERED: "1"
+          DRY_RUN: ${{ inputs.test && '1' || '0' }}
+          FORCE: ${{ inputs.test && '1' || '0' }}
       - name: Save posted news list
         run: |
           if [ -n "$(git status --porcelain autopost/posted_news.json)" ]; then

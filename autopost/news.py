@@ -204,7 +204,8 @@ def main():
         seen = set(json.load(open(STATE)))
     except Exception:  # noqa: BLE001
         seen = set()
-    items = [x for x in news() if x["link"] not in seen]
+    force = os.environ.get("FORCE") == "1"
+    items = [x for x in news() if force or x["link"] not in seen]
     mk = market()
     if len(items) < 2:
         print("мало свіжих новин, пропускаю")
@@ -213,6 +214,7 @@ def main():
     for x, t in zip(need, to_uk([x["title"] for x in need])):
         x["uk"] = t
     ai = ai_text(items, mk)
+    print("ШІ:", "є текст" if ai else "немає (ключ не задано або помилка)")
     text = build(items, mk, ai)
     print(text)
     if os.environ.get("DRY_RUN") == "1":
