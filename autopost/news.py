@@ -79,6 +79,22 @@ def market():
     return res
 
 
+def to_uk(texts):
+    """Безкоштовний переклад заголовків на українську (Google gtx)."""
+    if not texts:
+        return texts
+    joined = "\n".join(t.replace("\n", " ") for t in texts)
+    try:
+        q = urllib.parse.urlencode({"client": "gtx", "sl": "auto", "tl": "uk", "dt": "t", "q": joined})
+        d = json.loads(fetch("https://translate.googleapis.com/translate_a/single?" + q))
+        out = "".join(seg[0] for seg in d[0] if seg and seg[0]).split("\n")
+        if len(out) == len(texts):
+            return [o.strip() for o in out]
+    except Exception as e:  # noqa: BLE001
+        print("переклад не вдався:", e)
+    return texts
+
+
 def ai_text(items, mk):
     key = os.environ.get("ANTHROPIC_API_KEY")
     if not key:
@@ -95,11 +111,10 @@ MARKET (Kraken):
 HEADLINES (last hours):
 {heads}
 
-Write the post in this exact structure, plain text, emojis welcome, max 1100 characters total:
-1) One punchy title line about who is winning right now: bulls 🐂 or bears 🐻 (based on the price changes).
-2) "🔥 Top stories" — the 3 most important headlines, one line each, rewritten short (no links).
-3) "🧠 AI take" — 2 sentences: what these stories may mean for market mood. Neutral, careful.
-4) "🇺🇦" — the same title + AI take in Ukrainian, 2–3 short lines.
+Write the post IN UKRAINIAN, in this exact structure, plain text, emojis welcome, max 1000 characters:
+1) One punchy title line: who is winning right now — бики 🐂 or ведмеді 🐻 (based on the price changes).
+2) "🔥 Головні новини" — the 3 most important headlines, one line each, short, in Ukrainian (no links).
+3) "🧠 Думка ШІ" — 2 sentences: what these stories may mean for market mood. Neutral, careful.
 Return only the post text."""
     body = json.dumps({
         "model": os.environ.get("AI_MODEL", "claude-haiku-5-5"),
@@ -119,10 +134,10 @@ Return only the post text."""
 
 def plain_text(items, mk):
     up = sum(v["ch4"] for v in mk.values()) >= 0 if mk else True
-    lines = ["<b>" + ("🐂 Bulls lead the last 4h" if up else "🐻 Bears lead the last 4h") + "</b>", ""]
-    lines.append("🔥 <b>Top crypto stories / Головні новини:</b>")
+    lines = ["<b>" + ("🐂 Останні 4 години за биками" if up else "🐻 Останні 4 години за ведмедями") + "</b>", ""]
+    lines.append("🔥 <b>Головні крипто-новини:</b>")
     for x in items[:5]:
-        lines.append(f"• {html.escape(x['title'])}")
+        lines.append(f"• {html.escape(x.get('uk') or x['title'])}")
     return "\n".join(lines)
 
 
@@ -130,19 +145,19 @@ def build(items, mk, ai):
     head = []
     big = [k for k, v in mk.items() if abs(v["ch4"]) >= 3]
     if big:
-        head.append("🚨 <b>BIG MOVE:</b> " + ", ".join(f"{k} {mk[k]['ch4']:+.1f}% in 4h" for k in big))
+        head.append("🚨 <b>РІЗКИЙ РУХ:</b> " + ", ".join(f"{k} {mk[k]['ch4']:+.1f}% за 4 год" for k in big))
         head.append("")
     body = html.escape(ai) if ai else plain_text(items, mk)
-    mline = " · ".join(f"{k} {v['price']:,.0f} ({v['ch24']:+.1f}% 24h)" for k, v in mk.items())
-    src = "\n".join(f'<a href="{html.escape(x["link"])}">{html.escape(x["src"])}: {html.escape(x["title"][:70])}</a>' for x in items[:3])
+    mline = " · ".join(f"{k} {v['price']:,.0f} ({v['ch24']:+.1f}% за добу)" for k, v in mk.items())
+    src = "\n".join(f'<a href="{html.escape(x["link"])}">{html.escape(x["src"])}: {html.escape((x.get("uk") or x["title"])[:70])}</a>' for x in items[:3])
     tail = ["", "📊 " + mline, "", "🔗 " + src.replace("\n", "\n🔗 "), "",
-            "⚔️ Out-tap a friend in 60 s 👉 @BullBearLiveBot",
-            "<i>" + ("AI-generated summary of public news. " if ai else "Public crypto news digest. ") + "Not financial advice.</i>"]
+            "⚔️ Перетапай друга за 60 секунд 👉 @BullBearLiveBot",
+            "<i>" + ("Огляд новин підготував ШІ. " if ai else "Добірка публічних крипто-новин. ") + "Не є фінансовою порадою.</i>"]
     return "\n".join(head) + body + "\n" + "\n".join(tail)
 
 
 def send(token, chat, text):
-    markup = json.dumps({"inline_keyboard": [[{"text": "⚔️ Play / Грати", "url": BOT_URL}]]})
+    markup = json.dumps({"inline_keyboard": [[{"text": "⚔️ Грати", "url": BOT_URL}]]})
     data = urllib.parse.urlencode({"chat_id": chat, "text": text[:4000], "parse_mode": "HTML",
                                    "reply_markup": markup, "disable_web_page_preview": "true"}).encode()
     for attempt in range(3):
@@ -175,6 +190,9 @@ def main():
     if len(items) < 2:
         print("мало свіжих новин, пропускаю")
         return
+    uk = to_uk([x["title"] for x in items[:8]])
+    for x, t in zip(items[:8], uk):
+        x["uk"] = t
     ai = ai_text(items, mk)
     text = build(items, mk, ai)
     print(text)
