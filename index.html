@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Бики vs Ведмеді</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#07080c;--panel:#10121a;--line:#222634;--g:#00f593;--r:#ff3b5c;--y:#ffc43d;--txt:#e8eaf0;--mut:#8a90a2}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font:14px Inter,-apple-system,"Segoe UI",Roboto,system-ui,sans-serif;overscroll-behavior:none}
+body{min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+.wrap{max-width:560px;margin:0 auto;padding:10px 12px 18px}
+.top{display:flex;align-items:center;gap:8px}
+.logo{font-weight:900;font-size:16px;white-space:nowrap}.logo b{color:var(--g)}.logo i{color:var(--r);font-style:normal}
+.sp{flex:1}
+.ib{border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:10px;padding:6px 9px;font-size:15px;cursor:pointer}
+.ib.on{border-color:var(--g)}
+.coins{display:flex;gap:6px;overflow-x:auto;margin:10px 0 8px;scrollbar-width:none}.coins::-webkit-scrollbar{display:none}
+.coin{flex:none;padding:7px 14px;border-radius:999px;background:var(--panel);border:1px solid var(--line);font-weight:800;color:var(--txt)}
+.coin.on{border-color:var(--g);color:var(--g);box-shadow:0 0 12px #00f59344}
+.price{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+#px{font:900 38px/1 ui-monospace,"SF Mono",Consolas,monospace;transition:color .2s;letter-spacing:-.5px}
+#chg{font-weight:800;font-size:12.5px;margin-top:6px;color:var(--mut)}
+#chg span{margin-right:8px}
+#verdict{text-align:right;font-weight:900;font-size:17px;line-height:1.15}
+#verdict small{display:block;font-size:11.5px;color:var(--mut);font-weight:700;margin-top:4px}
+canvas{display:block;width:100%;border-radius:16px;background:#05060a}
+#field{height:min(56vh,460px);margin-top:10px;touch-action:none}
+.tug{margin-top:10px}
+.tug .lb{display:flex;justify-content:space-between;font-weight:900;font-size:13px;margin-bottom:5px}
+.bar{height:12px;border-radius:9px;background:var(--r);overflow:hidden;position:relative}
+.bar i{position:absolute;inset:0 auto 0 0;background:linear-gradient(90deg,#00a862,var(--g));transition:width .6s}
+.bar:after{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:2px;background:#fff9}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.st{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px}
+.st b{display:block;font-size:15px}.st span{font-size:10.5px;color:var(--mut)}
+.seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:3px;margin-top:12px}
+.seg button{flex:1;border:0;background:transparent;color:var(--mut);font-weight:800;padding:8px;border-radius:9px;font-size:13.5px}
+.seg button.on{background:#1b2030;color:var(--txt)}
+#chart{height:240px;margin-top:10px}
+#feed{display:flex;flex-direction:column;gap:7px;margin-top:10px}
+.ev{display:flex;gap:10px;padding:9px 10px;border-radius:12px;background:var(--panel);border-left:4px solid #555;animation:in .4s ease-out}
+.ev.g{border-color:var(--g)}.ev.r{border-color:var(--r)}.ev.y{border-color:var(--y)}
+.ev .ic{font-size:21px;line-height:1.2}.ev b{display:block;font-size:13.5px}.ev small{color:var(--mut);display:block;margin-top:2px;font-size:11.5px}
+@keyframes in{from{transform:translateY(-8px);opacity:0}}
+#toast{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:9;pointer-events:none;display:flex;flex-direction:column;gap:6px;align-items:center}
+.toast{width:100%;max-width:520px;padding:11px 13px;border-radius:14px;background:#151826f2;border:1px solid;font-weight:900;font-size:14.5px;box-shadow:0 10px 30px #000a;animation:tin 4.5s forwards}
+.toast.g{border-color:var(--g);box-shadow:0 0 24px #00f59355}.toast.r{border-color:var(--r);box-shadow:0 0 24px #ff3b5c55}.toast.y{border-color:var(--y)}
+.toast small{display:block;font-weight:600;color:var(--mut);margin-top:2px;font-size:12px}
+@keyframes tin{0%{transform:translateY(-130%)}8%{transform:none}86%{opacity:1}100%{opacity:0;transform:translateY(-20%)}}
+.foot{margin-top:14px;font-size:11px;color:var(--mut);line-height:1.5;text-align:center}
+.ex{display:flex;justify-content:center;gap:10px;margin-top:6px;flex-wrap:wrap}.ex span:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#555;margin-right:4px;vertical-align:1px}.ex span.on:before{background:var(--g)}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+<div class="wrap">
+  <div class="top"><div class="logo">🐂 <b>БИКИ</b> vs <i>ВЕДМЕДІ</i> 🐻</div><div class="sp"></div><button class="ib" id="bSnd" aria-label="Звук">🔊</button><button class="ib" id="bVib" aria-label="Вібрація">📳</button></div>
+  <div class="coins" id="coins"></div>
+  <div class="price"><div><div id="px">—</div><div id="chg">підключаюсь до бірж…</div></div><div id="verdict">⏳<small>чекаю угоди…</small></div></div>
+  <canvas id="field"></canvas>
+  <div class="tug"><div class="lb"><span style="color:var(--g)" id="tb">🐂 50%</span><span style="color:var(--mut);font-weight:700">тиск за хвилину</span><span style="color:var(--r)" id="ts">50% 🐻</span></div><div class="bar"><i id="tbar" style="width:50%"></i></div></div>
+  <div class="row3" id="stats"></div>
+  <div class="seg"><button class="on" data-t="feed">⚡ Події</button><button data-t="chart">📈 Графік</button></div>
+  <div id="pFeed"><div id="feed"></div></div>
+  <div id="pChart" style="display:none"><canvas id="chart"></canvas></div>
+  <div class="foot">Кожна кулька — реальна угода на Coinbase, Kraken, Bybit і OKX: зелені — купівлі по ринку, червоні — продажі. Це візуалізація ринку, а не торгова порада.<div class="ex" id="exs"></div></div>
+</div>
+<script>
+(function(){"use strict";
+var TG=window.Telegram&&window.Telegram.WebApp;
+if(TG){try{TG.ready();TG.expand();if(TG.disableVerticalSwipes)TG.disableVerticalSwipes();if(TG.setHeaderColor)TG.setHeaderColor("#07080c");if(TG.setBackgroundColor)TG.setBackgroundColor("#07080c")}catch(e){}}
+var COINS={BTC:{cb:"BTC-USD",kr:"BTC/USD",by:"BTCUSDT",ok:"BTC-USDT-SWAP",okc:0.01},ETH:{cb:"ETH-USD",kr:"ETH/USD",by:"ETHUSDT",ok:"ETH-USDT-SWAP",okc:0.1},SOL:{cb:"SOL-USD",kr:"SOL/USD",by:"SOLUSDT",ok:"SOL-USDT-SWAP",okc:1},XRP:{cb:"XRP-USD",kr:"XRP/USD",by:"XRPUSDT",ok:"XRP-USDT-SWAP",okc:100},DOGE:{cb:"DOGE-USD",kr:"DOGE/USD",by:"DOGEUSDT",ok:"DOGE-USDT-SWAP",okc:1000}};
+var EXN={cb:"Coinbase",kr:"Kraken",by:"Bybit",ok:"OKX"};
+function LS(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+var start=(TG&&TG.initDataUnsafe&&TG.initDataUnsafe.start_param)||"";start=start.toUpperCase();
+var COIN=COINS[start]?start:(LS("tgb_coin")||"BTC");if(!COINS[COIN])COIN="BTC";
+var $=function(id){return document.getElementById(id)};
+var socks={},gen=0,trades=[],sizes=[],p99=0,p999=0,price=0,lastRef=0,shownPx=0,bars=[],minutes=[],marks=[],particles=[],sparks=[],chargers=[],front=.5,frontT=.5,kick=0,cool={},t0=Date.now(),pend=[0,0];
+var sndOn=LS("tgb_snd")==="1",vibOn=LS("tgb_vib")!=="0",AC=null;
+function fU(u){return u>=1e6?"$"+(u/1e6).toFixed(2)+"M":u>=1e3?"$"+(u/1e3).toFixed(u>=1e5?0:1)+"K":"$"+Math.round(u)}
+function fP(p){return p>=1000?p.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2}):p>=1?p.toFixed(3):p.toFixed(5)}
+function tm(t){return new Date(t).toLocaleTimeString("uk-UA",{hour:"2-digit",minute:"2-digit",second:"2-digit"})}
+function pct(a,b){return b?((a/b-1)*100):0}
+function sgn(v){return (v>=0?"+":"−")+Math.abs(v).toFixed(2)}
+/* ---------- дані ---------- */
+function onTrade(ex,px,qty,buy){if(!(px>0&&qty>0))return;var t=Date.now(),usd=px*qty;
+ if(ex==="cb"||ex==="kr"){price=px;lastRef=t}else if(!price||t-lastRef>5000)price=px;
+ var P=price;trades.push({t:t,usd:usd,buy:buy});sizes.push(usd);if(sizes.length>5000)sizes.splice(0,sizes.length-5000);
+ var bt=Math.floor(t/10000)*10000,b=bars[bars.length-1];if(!b||b.t!==bt){b={t:bt,o:P,h:P,l:P,c:P,bv:0,sv:0};bars.push(b);if(bars.length>240)bars.shift()}
+ b.h=Math.max(b.h,P);b.l=Math.min(b.l,P);b.c=P;if(buy)b.bv+=usd;else b.sv+=usd;
+ var mt=Math.floor(t/60000)*60000,m=minutes[minutes.length-1];if(!m||m.t!==mt){m={t:mt,bv:0,sv:0,h:P,l:P,c:P};minutes.push(m);if(minutes.length>120)minutes.shift()}
+ if(buy)m.bv+=usd;else m.sv+=usd;m.h=Math.max(m.h,P);m.l=Math.min(m.l,P);m.c=P;
+ if(p99&&usd>=p99){spawnP(usd,buy);marks.push({t:t,px:P,usd:usd,buy:buy});if(marks.length>300)marks.shift();
+  if(p999&&usd>=p999&&ok("w"+(buy?1:0),5000)){charge(buy,usd,EXN[ex]);event(buy?"g":"r",buy?"🐂":"🐻",(buy?"Кит купив ":"Кит продав ")+fU(usd),EXN[ex]+" · "+fP(P),usd>=p999*2.5,buy?1:-1)}}
+ else pend[buy?1:0]+=usd}
+setInterval(function(){for(var k=0;k<2;k++)if(pend[k]>0){spawnP(pend[k],k===1);pend[k]=0}},160);
+function connect(){gen++;var g=gen;for(var k in socks){try{socks[k].onclose=null;socks[k].close()}catch(e){}}socks={};var C=COINS[COIN];
+ sock("cb","wss://ws-feed.exchange.coinbase.com",function(ws){ws.send(JSON.stringify({type:"subscribe",product_ids:[C.cb],channels:["matches"]}))},function(m){if(m.type==="match")onTrade("cb",+m.price,+m.size,m.side==="sell")},g);
+ sock("kr","wss://ws.kraken.com/v2",function(ws){ws.send(JSON.stringify({method:"subscribe",params:{channel:"trade",symbol:[C.kr],snapshot:false}}))},function(m){if(m.channel==="trade"&&m.data)for(var i=0;i<m.data.length;i++){var d=m.data[i];onTrade("kr",+d.price,+d.qty,d.side==="buy")}},g);
+ sock("by","wss://stream.bybit.com/v5/public/linear",function(ws){ws.send(JSON.stringify({op:"subscribe",args:["publicTrade."+C.by]}));ws._pi=setInterval(function(){try{ws.send('{"op":"ping"}')}catch(e){}},20000)},function(m){if(m.topic&&m.topic.indexOf("publicTrade")===0&&m.data)for(var i=0;i<m.data.length;i++){var d=m.data[i];onTrade("by",+d.p,+d.v,d.S==="Buy")}},g);
+ sock("ok","wss://ws.okx.com:8443/ws/v5/public",function(ws){ws.send(JSON.stringify({op:"subscribe",args:[{channel:"trades",instId:C.ok}]}));ws._pi=setInterval(function(){try{ws.send("ping")}catch(e){}},25000)},function(m){if(m.arg&&m.arg.channel==="trades"&&m.data)for(var i=0;i<m.data.length;i++){var d=m.data[i];onTrade("ok",+d.px,+d.sz*C.okc,d.side==="buy")}},g);
+ renderEx()}
+function sock(k,url,onopen,onmsg,g){var ws;try{ws=new WebSocket(url)}catch(e){return}socks[k]=ws;ws.onopen=function(){ws._ok=1;renderEx();onopen(ws)};ws.onmessage=function(e){if(e.data==="pong")return;var m;try{m=JSON.parse(e.data)}catch(x){return}onmsg(m)};ws.onerror=function(){};ws.onclose=function(){clearInterval(ws._pi);ws._ok=0;renderEx();if(g===gen)setTimeout(function(){if(g===gen)sock(k,url,onopen,onmsg,g)},3000)}}
+function renderEx(){var h="";for(var k in EXN)h+='<span class="'+(socks[k]&&socks[k]._ok?"on":"")+'">'+EXN[k]+"</span>";$("exs").innerHTML=h}
+function setCoin(c){COIN=c;LS("tgb_coin",c);trades=[];sizes=[];p99=p999=0;price=0;bars=[];minutes=[];marks=[];particles=[];sparks=[];chargers=[];pend=[0,0];front=frontT=.5;t0=Date.now();cool={};renderCoins();$("feed").innerHTML="";event("y","⚔️","Битва: "+c,"перші хвилини вчуся, яка тут норма",false,0);connect();haptic("sel")}
+function renderCoins(){var h="";for(var c in COINS)h+='<button class="coin'+(c===COIN?" on":"")+'" data-c="'+c+'">'+c+"</button>";$("coins").innerHTML=h;var bs=$("coins").querySelectorAll(".coin");for(var i=0;i<bs.length;i++)bs[i].onclick=function(){if(this.dataset.c!==COIN)setCoin(this.dataset.c)}}
+/* ---------- відгук: вібро, звук, тост ---------- */
+function haptic(kind){if(!vibOn||!TG||!TG.HapticFeedback)return;try{if(kind==="sel")TG.HapticFeedback.selectionChanged();else if(kind==="big")TG.HapticFeedback.notificationOccurred("warning");else TG.HapticFeedback.impactOccurred(kind||"light")}catch(e){}}
+function beep(dir,big){if(!sndOn)return;try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();var o=AC.createOscillator(),g=AC.createGain(),n=AC.currentTime,f0=dir>0?440:700,f1=dir>0?(big?1100:880):(big?220:330);o.type="triangle";o.frequency.setValueAtTime(f0,n);o.frequency.exponentialRampToValueAtTime(f1,n+.2);g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(big?.1:.06,n+.02);g.gain.exponentialRampToValueAtTime(.0001,n+.3);o.connect(g);g.connect(AC.destination);o.start(n);o.stop(n+.35)}catch(e){}}
+function ok(k,ms){var n=Date.now();if(cool[k]&&n-cool[k]<ms)return false;cool[k]=n;return true}
+function event(cls,ic,title,sub,big,dir){var f=$("feed"),d=document.createElement("div");d.className="ev "+cls;d.innerHTML='<div class="ic">'+ic+"</div><div><b>"+title+"</b><small>"+sub+" · "+tm(Date.now())+"</small></div>";f.insertBefore(d,f.firstChild);while(f.children.length>50)f.removeChild(f.lastChild);
+ if(big){var T=$("toast"),t=document.createElement("div");t.className="toast "+cls;t.innerHTML=ic+" "+title+"<small>"+sub+"</small>";T.appendChild(t);setTimeout(function(){t.remove()},4600);while(T.children.length>2)T.removeChild(T.firstChild);haptic("big")}else if(dir)haptic("light");
+ if(dir)beep(dir,big)}
+$("bSnd").onclick=function(){sndOn=!sndOn;LS("tgb_snd",sndOn?"1":"0");upBtn();if(sndOn)beep(1,false)};
+$("bVib").onclick=function(){vibOn=!vibOn;LS("tgb_vib",vibOn?"1":"0");upBtn();haptic("medium")};
+function upBtn(){$("bSnd").className="ib"+(sndOn?" on":"");$("bSnd").textContent=sndOn?"🔊":"🔇";$("bVib").className="ib"+(vibOn?" on":"");$("bVib").style.opacity=vibOn?1:.5}
+var segs=document.querySelectorAll(".seg button");for(var si=0;si<segs.length;si++)segs[si].onclick=function(){for(var j=0;j<segs.length;j++)segs[j].classList.toggle("on",segs[j]===this);var c=this.dataset.t==="chart";$("pChart").style.display=c?"":"none";$("pFeed").style.display=c?"none":"";if(c)size();haptic("sel")};
+/* ---------- аналітика ---------- */
+function win(ms){var n=Date.now(),b=0,s=0,c=0;for(var i=trades.length-1;i>=0;i--){var x=trades[i];if(n-x.t>ms)break;c++;if(x.buy)b+=x.usd;else s+=x.usd}return{b:b,s:s,c:c}}
+function pxAgo(ms){var n=Date.now()-ms;for(var i=bars.length-1;i>=0;i--)if(bars[i].t<=n)return bars[i].c;return bars.length?bars[0].o:price}
+function norms(){var v=[],done=minutes.slice(0,-1).slice(-30);for(var i=0;i<done.length;i++)v.push(done[i].bv,done[i].sv);if(v.length<8)return null;var mu=0;for(i=0;i<v.length;i++)mu+=v[i];mu/=v.length;var sd=0;for(i=0;i<v.length;i++)sd+=(v[i]-mu)*(v[i]-mu);sd=Math.sqrt(sd/v.length)||mu||1;return{mu:mu,sd:sd}}
+setInterval(function(){var n=Date.now();while(trades.length&&n-trades[0].t>300000)trades.shift();if(sizes.length>=300){var s=sizes.slice().sort(function(a,b){return a-b});p99=s[Math.floor(s.length*.99)];p999=s[Math.min(s.length-1,Math.floor(s.length*.999))]}},4000);
+setInterval(function(){if(!price)return;var n=Date.now(),w1=win(60000),w5=win(300000),tot=w1.b+w1.s,ratio=tot?(w1.b-w1.s)/tot:0;frontT=.5+.42*ratio;
+ var c1=pct(price,pxAgo(60000)),c5=pct(price,pxAgo(300000)),c15=pct(price,pxAgo(900000)),dUsd=price-pxAgo(60000);
+ function cs(v,l){return "<span style='color:"+(v>=0?"var(--g)":"var(--r)")+"'>"+l+" "+sgn(v)+"%</span>"}
+ $("chg").innerHTML=cs(c1,"1хв")+cs(c5,"5хв")+cs(c15,"15хв");
+ var bp=tot?Math.round(w1.b/tot*100):50,vt,vc;if(ratio>.15){vt="🐂 Бики тиснуть";vc="var(--g)"}else if(ratio<-.15){vt="🐻 Ведмеді тиснуть";vc="var(--r)"}else{vt="⚖️ Рівновага";vc="var(--y)"}
+ var who=Math.abs(dUsd)<1e-9?"ціна стоїть":(dUsd>0?"ціна ↑ ":"ціна ↓ ")+"$"+Math.abs(dUsd).toFixed(price>=1?2:5);
+ $("verdict").innerHTML="<span style='color:"+vc+"'>"+vt+"</span><small>"+who+" за хв</small>";
+ $("tb").textContent="🐂 "+bp+"%";$("ts").textContent=(100-bp)+"% 🐻";$("tbar").style.width=bp+"%";
+ var cvd=w5.b-w5.s;$("stats").innerHTML='<div class="st"><b>'+fU(tot)+'</b><span>обсяг за хв</span></div><div class="st"><b style="color:'+(cvd>=0?"var(--g)":"var(--r)")+'">'+(cvd>=0?"+":"−")+fU(Math.abs(cvd))+'</b><span>перевага за 5 хв</span></div><div class="st"><b>'+(p999?fU(p999):"…")+'</b><span>«кит» зараз від</span></div>';
+ var N=norms();if(!N||n-t0<300000)return;
+ var side=w1.b>=w1.s,v=side?w1.b:w1.s,share=tot?v/tot:0;
+ if(v>N.mu+N.sd&&share>=.6&&ok("surge"+(side?1:0),90000)){var R=v/N.mu;event(side?"g":"r",side?"🐂🔥":"🐻🔥",side?"Хвиля покупок!":"Хвиля продажів!",fU(v)+" за хвилину · ×"+R.toFixed(1)+" від норми · "+who,true,side?1:-1);charge(side,v,null,R)}
+ if(Math.abs(ratio)>=.3&&tot>N.mu&&ok("abs",120000)){var cp=pct(price,pxAgo(60000));if(ratio>0&&cp<=0)event("r","🧱","Поглинання: покупці тиснуть, ціна стоїть","хтось великий продає лімітками",true,-1);else if(ratio<0&&cp>=0)event("g","🧱","Поглинання: продавці тиснуть, ціна стоїть","хтось великий скуповує лімітками",true,1)}
+ var hist=minutes.slice(0,-1).slice(-15);if(hist.length>=10){var hi=-1e18,lo=1e18;for(var i=0;i<hist.length;i++){if(hist[i].h>hi)hi=hist[i].h;if(hist[i].l<lo)lo=hist[i].l}
+  if(price>hi&&ok("bo",180000))event("g","🚀","Пробій вгору!","вище максимуму 15 хв ("+fP(hi)+")"+(ratio>0?" · обсяг підтверджує":" · покупців мало"),true,1);
+  else if(price<lo&&ok("bo",180000))event("r","🕳️","Пробій вниз!","нижче мінімуму 15 хв ("+fP(lo)+")"+(ratio<0?" · обсяг підтверджує":" · продавців мало"),true,-1)}
+},500);
+/* ---------- поле битви ---------- */
+var F=$("field"),fx=F.getContext("2d"),CH=$("chart"),cx=CH.getContext("2d"),DPR=1,FW=0,FH=0,CW=0,CHH=0;
+function size(){DPR=Math.min(2,window.devicePixelRatio||1);FW=F.clientWidth*DPR;FH=F.clientHeight*DPR;F.width=FW;F.height=FH;if(CH.clientWidth){CW=CH.clientWidth*DPR;CHH=CH.clientHeight*DPR;CH.width=CW;CH.height=CHH}}
+window.addEventListener("resize",size);if(TG&&TG.onEvent)TG.onEvent("viewportChanged",size);size();
+var crowd=[];for(var i=0;i<18;i++)crowd.push({x:Math.random(),y:Math.random(),p:Math.random()*6.28,s:.7+Math.random()*.6});
+function spawnP(usd,buy){if(document.hidden||!FW)return;if(particles.length>220&&!(p99&&usd>=p99))return;var r=Math.max(2.5,Math.min(40,2+Math.sqrt(usd)/12))*DPR;particles.push({x:buy?-r:FW+r,y:(24+Math.random()*(FH/DPR-48))*DPR,vx:(buy?1:-1)*(1.6+Math.random()*1.6)*DPR*(r>18*DPR?.75:1),r:r,buy:buy,usd:usd,big:p99&&usd>=p99,a:0})}
+function charge(buy,usd,ex,R){if(document.hidden||!FW)return;var sz=Math.round(R?Math.min(130,50+(R-1)*25):Math.min(100,46+Math.sqrt(usd)/45))*DPR;chargers.push({buy:buy,x:buy?-sz:FW+sz,y:FH*(.35+Math.random()*.35),sz:sz,v:(buy?1:-1)*4.5*DPR,lab:fU(usd)+(ex?" · "+ex:" за хв"),ph:0})}
+function burst(x,y,col,n,sp){for(var i=0;i<n;i++){var a=Math.random()*6.28,v=(1+Math.random()*sp)*DPR;sparks.push({x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1,c:col})}if(sparks.length>500)sparks.splice(0,sparks.length-500)}
+var SPR={};function sprite(e,s,flip){var k=e+s+(flip?1:0),c=SPR[k];if(c)return c;c=document.createElement("canvas");var p=Math.ceil(s*1.35);c.width=c.height=p;var g=c.getContext("2d");g.font=s+"px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";g.textAlign="center";g.textBaseline="middle";if(flip){g.translate(p/2,p/2);g.scale(-1,1);g.fillText(e,0,0)}else g.fillText(e,p/2,p/2);SPR[k]=c;return c}
+function emoji(ctx,e,x,y,s,flip,alpha){s=Math.max(8,Math.round(s/4)*4);var c=sprite(e,s,flip);ctx.globalAlpha=alpha==null?1:alpha;ctx.drawImage(c,x-c.width/2,y-c.height/2);ctx.globalAlpha=1}
+function drawField(T){var W=FW,H=FH,dt=Math.min(3,(T-(drawField.l||T))/16.7)||1;drawField.l=T;fx.clearRect(0,0,W,H);
+ kick*=Math.pow(.97,dt);front+=((frontT+kick)-front)*(1-Math.pow(.98,dt));front=Math.max(.1,Math.min(.9,front));var X=front*W,y,i;
+ var g1=fx.createLinearGradient(0,0,X,0);g1.addColorStop(0,"rgba(0,245,147,.30)");g1.addColorStop(1,"rgba(0,245,147,.06)");fx.fillStyle=g1;fx.fillRect(0,0,X,H);
+ var g2=fx.createLinearGradient(X,0,W,0);g2.addColorStop(0,"rgba(255,59,92,.06)");g2.addColorStop(1,"rgba(255,59,92,.30)");fx.fillStyle=g2;fx.fillRect(X,0,W-X,H);
+ emoji(fx,"🐂",X*.45,H*.58,(60+front*110)*DPR,true,.2+front*.25);emoji(fx,"🐻",X+(W-X)*.55,H*.58,(60+(1-front)*110)*DPR,false,.2+(1-front)*.25);
+ var nb=Math.round(front*crowd.length);for(i=0;i<crowd.length;i++){var c=crowd[i],bob=Math.sin(T/280+c.p)*3*DPR,isB=i<nb,x=isB?(10*DPR+c.x*(X-30*DPR)):(X+22*DPR+c.x*(W-X-30*DPR));emoji(fx,isB?"🐂":"🐻",x,(26+c.y*(H/DPR-52))*DPR+bob,18*c.s*DPR,isB,.85)}
+ var wc=front>.55?"0,245,147":front<.45?"255,59,92":"255,196,61";fx.beginPath();for(y=0;y<=H;y+=8*DPR){var jx=X+Math.sin(T/600+y*.014)*5*DPR+Math.sin(T/230+y*.035)*2*DPR;if(y===0)fx.moveTo(jx,y);else fx.lineTo(jx,y)}
+ fx.lineCap="round";fx.lineJoin="round";fx.strokeStyle="rgba("+wc+",.10)";fx.lineWidth=22*DPR;fx.stroke();fx.strokeStyle="rgba("+wc+",.25)";fx.lineWidth=10*DPR;fx.stroke();fx.strokeStyle="rgba("+wc+",.7)";fx.lineWidth=4*DPR;fx.stroke();fx.strokeStyle="#fff";fx.lineWidth=1.6*DPR;fx.stroke();
+ for(i=particles.length-1;i>=0;i--){var p=particles[i];p.x+=p.vx*dt;p.a=Math.min(1,p.a+.08*dt);var hit=p.buy?p.x+p.r>=X:p.x-p.r<=X;if(hit){burst(X,p.y,p.buy?"#00f593":"#ff3b5c",Math.min(18,3+p.r/(2*DPR)),p.r>14*DPR?4.5:2.5);if(p.big)haptic("soft");particles.splice(i,1);continue}
+  fx.beginPath();fx.arc(p.x,p.y,p.r,0,6.283);var col=p.buy?"0,245,147":"255,59,92";fx.fillStyle="rgba("+col+","+((p.big?.95:.72)*p.a)+")";if(p.big){fx.shadowColor="#ffc43d";fx.shadowBlur=14*DPR}fx.fill();fx.shadowBlur=0;
+  if(p.big){fx.strokeStyle="#ffc43d";fx.lineWidth=2*DPR;fx.stroke()}if(p.big&&p.usd>=2.5*p99){fx.fillStyle="#fff";fx.font="800 "+(10*DPR)+"px Inter,sans-serif";fx.textAlign="center";fx.fillText(fU(p.usd),p.x,p.y-p.r-5*DPR)}}
+ for(i=chargers.length-1;i>=0;i--){var h=chargers[i];h.x+=h.v*dt;h.ph+=.15*dt;emoji(fx,h.buy?"🐂":"🐻",h.x,h.y+Math.sin(h.ph)*5*DPR,h.sz,h.buy);fx.fillStyle=h.buy?"#00f593":"#ff3b5c";fx.font="900 "+(12*DPR)+"px Inter,sans-serif";fx.textAlign="center";fx.fillText(h.lab,h.x,h.y-h.sz*.6);
+  if(h.buy?h.x+h.sz*.3>=X:h.x-h.sz*.3<=X){burst(X,h.y,h.buy?"#00f593":"#ff3b5c",50,8);burst(X,h.y,"#ffc43d",20,5);kick+=(h.buy?1:-1)*.05;haptic("heavy");chargers.splice(i,1)}}
+ for(i=sparks.length-1;i>=0;i--){var s=sparks[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.vy+=.05*DPR*dt;s.l-=.024*dt;if(s.l<=0){sparks.splice(i,1);continue}fx.globalAlpha=s.l;fx.fillStyle=s.c;fx.fillRect(s.x,s.y,2.4*DPR,2.4*DPR)}fx.globalAlpha=1;
+ var bp=Math.round(front*100);fx.font="900 "+(22*DPR)+"px Inter,sans-serif";fx.textBaseline="top";fx.textAlign="left";fx.fillStyle="#00f593";fx.fillText(bp+"%",12*DPR,10*DPR);fx.textAlign="right";fx.fillStyle="#ff3b5c";fx.fillText((100-bp)+"%",W-12*DPR,10*DPR);fx.textBaseline="alphabetic";
+ if(!price){fx.fillStyle="#8a90a2";fx.font="700 "+(14*DPR)+"px Inter,sans-serif";fx.textAlign="center";fx.fillText("Підключаюсь до бірж…",W/2,H/2)}}
+/* ---------- графік ---------- */
+function drawChart(){if(!CW||$("pChart").style.display==="none")return;var W=CW,H=CHH,pad=6*DPR,ax=58*DPR,ph=H*.66,vh=H-ph-18*DPR;cx.clearRect(0,0,W,H);var n=Date.now(),from=n-900000,B=bars.filter(function(b){return b.t>=from});if(B.length<2){cx.fillStyle="#8a90a2";cx.font="700 "+(13*DPR)+"px Inter,sans-serif";cx.textAlign="center";cx.fillText("Графік з'явиться за кілька секунд…",W/2,H/2);return}
+ var hi=-1e18,lo=1e18,vm=1,i;for(i=0;i<B.length;i++){hi=Math.max(hi,B[i].h);lo=Math.min(lo,B[i].l);vm=Math.max(vm,B[i].bv,B[i].sv)}var m=(hi-lo)*.08||price*.0005;hi+=m;lo-=m;
+ var pw=W-ax-pad,X=function(t){return pad+(t-from)/900000*pw},Y=function(p){return pad+(hi-p)/(hi-lo)*(ph-pad)},bw=Math.max(2*DPR,pw/90*.7);
+ cx.strokeStyle="rgba(255,255,255,.05)";cx.fillStyle="#8a90a2";cx.font=(10*DPR)+"px ui-monospace,Consolas,monospace";cx.textAlign="left";for(i=0;i<=3;i++){var pv=lo+(hi-lo)*i/3,yy=Y(pv);cx.beginPath();cx.moveTo(pad,yy);cx.lineTo(W-ax,yy);cx.stroke();cx.fillText(fP(pv),W-ax+4*DPR,yy+4*DPR)}
+ var mid=ph+10*DPR+vh/2;for(i=0;i<B.length;i++){var b=B[i],x=X(b.t+5000),up=b.c>=b.o;cx.strokeStyle=cx.fillStyle=up?"#00f593":"#ff3b5c";cx.lineWidth=1*DPR;cx.beginPath();cx.moveTo(x,Y(b.h));cx.lineTo(x,Y(b.l));cx.stroke();var y1=Y(Math.max(b.o,b.c)),y2=Y(Math.min(b.o,b.c));cx.fillRect(x-bw/2,y1,bw,Math.max(1*DPR,y2-y1));
+  cx.globalAlpha=.75;cx.fillStyle="#00f593";var hb=b.bv/vm*vh/2;cx.fillRect(x-bw/2,mid-hb,bw,hb);cx.fillStyle="#ff3b5c";cx.fillRect(x-bw/2,mid,bw,b.sv/vm*vh/2);cx.globalAlpha=1}
+ for(i=0;i<marks.length;i++){var k=marks[i];if(k.t<from)continue;var r=Math.max(2.5,Math.min(12,Math.sqrt(k.usd/(p99||k.usd))*3.5))*DPR;cx.beginPath();cx.arc(X(k.t),Y(k.px),r,0,6.283);cx.fillStyle=k.buy?"rgba(0,245,147,.35)":"rgba(255,59,92,.35)";cx.fill();cx.strokeStyle="#ffc43d";cx.lineWidth=1.2*DPR;cx.stroke()}
+ if(price){var yp=Y(price);cx.setLineDash([4*DPR,4*DPR]);cx.strokeStyle="#ffc43d";cx.beginPath();cx.moveTo(pad,yp);cx.lineTo(W-ax,yp);cx.stroke();cx.setLineDash([]);cx.fillStyle="#ffc43d";cx.fillRect(W-ax,yp-8*DPR,ax-2*DPR,16*DPR);cx.fillStyle="#000";cx.font="800 "+(10*DPR)+"px ui-monospace,Consolas,monospace";cx.fillText(fP(price),W-ax+3*DPR,yp+4*DPR)}}
+function loop(T){drawField(T);if(!loop.c||T-loop.c>300){loop.c=T;drawChart()}if(price){var el=$("px");if(price!==shownPx){el.style.color=price>shownPx?"#00f593":"#ff3b5c";clearTimeout(el._t);el._t=setTimeout(function(){el.style.color=""},300);shownPx=price}el.textContent=fP(price)}requestAnimationFrame(loop)}
+renderCoins();upBtn();connect();requestAnimationFrame(loop);
+event("y","⚔️","Битва: "+COIN,"перші 5 хвилин вчуся, яка тут норма обсягів",false,0);
+})();
+</script>
+</body>
+</html>
