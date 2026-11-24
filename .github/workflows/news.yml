@@ -1,0 +1,39 @@
+name: BullBear AI news
+
+on:
+  schedule:
+    - cron: "23 1,5,9,13,17,21 * * *"
+    - cron: "53 3,11,19 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bullbear-news
+  cancel-in-progress: false
+
+jobs:
+  news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python autopost/news.py
+        env:
+          TG_TOKEN: ${{ secrets.TG_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TG_CHANNEL: "@BullBearLive"
+          PYTHONUNBUFFERED: "1"
+      - name: Save posted news list
+        run: |
+          if [ -n "$(git status --porcelain autopost/posted_news.json)" ]; then
+            git config user.name "BullBear bot"
+            git config user.email "bot@users.noreply.github.com"
+            git add autopost/posted_news.json
+            git commit -m "news: remember posted links"
+            git push
+          fi
