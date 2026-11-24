@@ -60,12 +60,39 @@ canvas{display:block;width:100%;border-radius:16px;background:#05060a}
 @keyframes tpin{from{transform:translateX(-14px);opacity:0;background:#2a3044}}
 .foot{margin-top:14px;font-size:11px;color:var(--mut);line-height:1.5;text-align:center}
 .ex{display:flex;justify-content:center;gap:10px;margin-top:6px;flex-wrap:wrap}.ex span:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:#555;margin-right:4px;vertical-align:1px}.ex span.on:before{background:var(--g)}
+body{padding-top:calc(var(--tg-safe-area-inset-top,0px) + var(--tg-content-safe-area-inset-top,0px))}
+/* ---- широкий екран (десктоп / повний екран) ---- */
+body.wide .wrap{max-width:1600px;display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:4px 16px;padding:12px 18px}
+body.wide .top,body.wide .coins{grid-column:1/-1}
+body.wide #L,body.wide #R{min-width:0}
+body.wide #segV,body.wide #segB,body.wide #pChart{display:none!important}
+body.wide #px{font-size:52px}body.wide #verdict{font-size:26px}body.wide #verdict small{font-size:13px}
+body.wide #field{height:44vh;min-height:300px}body.wide #mkt{height:38vh;min-height:260px}
+body.wide #tape{max-height:34vh}body.wide #pFeed{max-height:36vh;overflow:auto}
+body.wide .logo{font-size:22px}
+#R .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:12px}
+/* ---- великі ефекти на весь екран ---- */
+#fxo{position:fixed;inset:0;pointer-events:none;z-index:8;overflow:hidden}
+#fxo .a{position:absolute;line-height:1;will-change:transform,opacity}
+.fx-vig{inset:0;animation:fxVig 1.6s ease-out forwards}.fx-vig.g{box-shadow:inset 0 0 22vmin 6vmin rgba(0,245,147,.55)}.fx-vig.r{box-shadow:inset 0 0 22vmin 6vmin rgba(255,59,92,.55)}
+@keyframes fxVig{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
+.fx-title{left:50%;top:38%;font:900 clamp(34px,8vw,92px)/1.02 Inter,-apple-system,"Segoe UI",sans-serif;text-align:center;white-space:nowrap;animation:fxTitle 2.4s ease-out forwards}
+.fx-title small{display:block;font-size:.36em;margin-top:.35em;font-weight:800}
+.fx-title.g{color:#00f593;text-shadow:0 0 .4em #00f593,0 4px 0 #003b24}.fx-title.r{color:#ff3b5c;text-shadow:0 0 .4em #ff3b5c,0 4px 0 #4a0010}
+@keyframes fxTitle{0%{transform:translate(-50%,-50%) scale(.2) rotate(-6deg);opacity:0}14%{transform:translate(-50%,-50%) scale(1.15) rotate(2deg);opacity:1}24%{transform:translate(-50%,-50%) scale(1)}78%{opacity:1}100%{transform:translate(-50%,-80%);opacity:0}}
+.fx-run{bottom:8%;font-size:clamp(90px,16vw,220px);animation:fxRun 2.4s cubic-bezier(.35,.05,.35,1) forwards}
+.fx-run.bull{left:-30vw}.fx-run.bear{right:-30vw}
+@keyframes fxRun{0%{transform:translateX(0)}100%{transform:translateX(var(--d))}}
+.fx-fall{top:-60px;font-size:clamp(26px,4vw,44px);animation:fxFall linear forwards}
+@keyframes fxFall{to{transform:translateY(118vh) rotate(560deg)}}
+.fx-shake{animation:fxShake .55s}
+@keyframes fxShake{0%,100%{transform:none}15%{transform:translate(-9px,5px)}35%{transform:translate(9px,-5px)}55%{transform:translate(-7px,-4px)}75%{transform:translate(7px,4px)}}
 </style>
 </head>
 <body>
-<div id="toast"></div>
+<div id="toast"></div><div id="fxo"></div>
 <div class="wrap">
-  <div class="top"><div class="logo">🐂 <b>BULL</b><i>BEAR</i> 🐻</div><div class="sp"></div><button class="ib" id="bSnd" aria-label="Звук">🔊</button><button class="ib" id="bVib" aria-label="Вібрація">📳</button></div>
+  <div class="top"><div class="logo">🐂 <b>BULL</b><i>BEAR</i> 🐻</div><div class="sp"></div><button class="ib" id="bSnd" aria-label="Звук">🔊</button><button class="ib" id="bVib" aria-label="Вібрація">📳</button><button class="ib" id="bFs" aria-label="Повний екран" style="display:none">⛶</button></div>
   <div class="coins" id="coins"></div>
   <div class="price"><div><div id="px">—</div><div id="chg">підключаюсь до бірж…</div></div><div id="verdict">⏳<small>чекаю угоди…</small></div></div>
   <div class="seg" id="segV"><button class="on" data-v="battle">⚔️ Битва</button><button data-v="market">📊 Ринок</button></div>
@@ -106,10 +133,10 @@ function onTrade(ex,px,qty,buy){if(!(px>0&&qty>0))return;var t=Date.now(),usd=px
  b.h=Math.max(b.h,P);b.l=Math.min(b.l,P);b.c=P;if(buy)b.bv+=usd;else b.sv+=usd;
  var mt=Math.floor(t/60000)*60000,m=minutes[minutes.length-1];if(!m||m.t!==mt){m={t:mt,bv:0,sv:0,h:P,l:P,c:P};minutes.push(m);if(minutes.length>120)minutes.shift()}
  if(buy)m.bv+=usd;else m.sv+=usd;m.h=Math.max(m.h,P);m.l=Math.min(m.l,P);m.c=P;
- if(p95&&usd>=p95){mkb.push({t:t,px:P,usd:usd,buy:buy,b:performance.now(),whale:p999&&usd>=p999});if(mkb.length>600)mkb.splice(0,mkb.length-600)}
+ if(p95&&usd>=p95){mkb.push({t:t,px:P,usd:usd,buy:buy,b:performance.now(),whale:p999&&usd>=p999,ex:EXN[ex],q:qty});if(mkb.length>600)mkb.splice(0,mkb.length-600)}
  if(p90&&usd>=p90){tapeQ.push({usd:usd,buy:buy,q:qty,ex:EXN[ex],w:p99&&usd>=p99});if(tapeQ.length>40)tapeQ.splice(0,tapeQ.length-40)}
  if(p99&&usd>=p99){spawnP(usd,buy);marks.push({t:t,px:P,usd:usd,buy:buy});if(marks.length>300)marks.shift();
-  if(p999&&usd>=p999&&ok("w"+(buy?1:0),5000)){charge(buy,usd,EXN[ex]);event(buy?"g":"r",buy?"🐂":"🐻",(buy?"Кит купив ":"Кит продав ")+fU(usd),EXN[ex]+" · "+fP(P),usd>=p999*2.5,buy?1:-1)}}
+  if(p999&&usd>=p999&&ok("w"+(buy?1:0),5000)){charge(buy,usd,EXN[ex]);event(buy?"g":"r",buy?"🐂":"🐻",(buy?"Кит купив ":"Кит продав ")+fU(usd),EXN[ex]+" · "+fP(P),usd>=p999*2.5,buy?1:-1);if(usd>=p999*2.5)bigFX(buy,usd,usd/p999,(buy?"🐋 КИТ КУПИВ ":"🐋 КИТ ПРОДАВ ")+fU(usd))}}
  else pend[buy?1:0]+=usd}
 setInterval(function(){for(var k=0;k<2;k++)if(pend[k]>0){spawnP(pend[k],k===1);pend[k]=0}},160);
 function connect(){gen++;var g=gen;for(var k in socks){try{socks[k].onclose=null;socks[k].close()}catch(e){}}socks={};var C=COINS[COIN];
@@ -134,8 +161,8 @@ function event(cls,ic,title,sub,big,dir){var f=$("feed"),d=document.createElemen
 $("bSnd").onclick=function(){sndOn=!sndOn;LS("tgb_snd",sndOn?"1":"0");upBtn();if(sndOn)beep(1,false)};
 $("bVib").onclick=function(){vibOn=!vibOn;LS("tgb_vib",vibOn?"1":"0");upBtn();haptic("medium")};
 function upBtn(){$("bSnd").className="ib"+(sndOn?" on":"");$("bSnd").textContent=sndOn?"🔊":"🔇";$("bVib").className="ib"+(vibOn?" on":"");$("bVib").style.opacity=vibOn?1:.5}
-var VIEW=LS("tgb_view")==="market"?"market":"battle";
-function setView(v){VIEW=v;LS("tgb_view",v);var bs=document.querySelectorAll("#segV button");for(var j=0;j<bs.length;j++)bs[j].classList.toggle("on",bs[j].dataset.v===v);$("vBattle").style.display=v==="battle"?"":"none";$("vMarket").style.display=v==="market"?"":"none";size()}
+var WIDE=false,VIEW=LS("tgb_view")==="market"?"market":"battle";
+function setView(v){VIEW=v;LS("tgb_view",v);if(WIDE)return;var bs=document.querySelectorAll("#segV button");for(var j=0;j<bs.length;j++)bs[j].classList.toggle("on",bs[j].dataset.v===v);$("vBattle").style.display=v==="battle"?"":"none";$("vMarket").style.display=v==="market"?"":"none";size()}
 var vbs=document.querySelectorAll("#segV button");for(var vi=0;vi<vbs.length;vi++)vbs[vi].onclick=function(){if(this.dataset.v!==VIEW){setView(this.dataset.v);haptic("sel")}};
 var segs=document.querySelectorAll("#segB button");for(var si=0;si<segs.length;si++)segs[si].onclick=function(){for(var j=0;j<segs.length;j++)segs[j].classList.toggle("on",segs[j]===this);var c=this.dataset.t==="chart";$("pChart").style.display=c?"":"none";$("pFeed").style.display=c?"none":"";if(c)size();haptic("sel")};
 /* ---------- аналітика ---------- */
@@ -154,11 +181,11 @@ setInterval(function(){if(!price)return;var n=Date.now(),w1=win(60000),w5=win(30
  var cvd=w5.b-w5.s;$("stats").innerHTML='<div class="st"><b>'+fU(tot)+'</b><span>обсяг за хв</span></div><div class="st"><b style="color:'+(cvd>=0?"var(--g)":"var(--r)")+'">'+(cvd>=0?"+":"−")+fU(Math.abs(cvd))+'</b><span>перевага за 5 хв</span></div><div class="st"><b>'+(p999?fU(p999):"…")+'</b><span>«кит» зараз від</span></div>';
  var N=norms();if(!N||n-t0<300000)return;
  var side=w1.b>=w1.s,v=side?w1.b:w1.s,share=tot?v/tot:0;
- if(v>N.mu+N.sd&&share>=.6&&ok("surge"+(side?1:0),90000)){var R=v/N.mu;event(side?"g":"r",side?"🐂🔥":"🐻🔥",side?"Хвиля покупок!":"Хвиля продажів!",fU(v)+" за хвилину · ×"+R.toFixed(1)+" від норми · "+who,true,side?1:-1);charge(side,v,null,R)}
+ if(v>N.mu+N.sd&&share>=.6&&ok("surge"+(side?1:0),90000)){var R=v/N.mu;event(side?"g":"r",side?"🐂🔥":"🐻🔥",side?"Хвиля покупок!":"Хвиля продажів!",fU(v)+" за хвилину · ×"+R.toFixed(1)+" від норми · "+who,true,side?1:-1);bigFX(side,v,R,(side?"БИКИ КУПУЮТЬ!":"ВЕДМЕДІ ТИСНУТЬ!")+"<small>"+fU(v)+" за хвилину · ×"+R.toFixed(1)+" від норми</small>");charge(side,v,null,R)}
  if(Math.abs(ratio)>=.3&&tot>N.mu&&ok("abs",120000)){var cp=pct(price,pxAgo(60000));if(ratio>0&&cp<=0)event("r","🧱","Поглинання: покупці тиснуть, ціна стоїть","хтось великий продає лімітками",true,-1);else if(ratio<0&&cp>=0)event("g","🧱","Поглинання: продавці тиснуть, ціна стоїть","хтось великий скуповує лімітками",true,1)}
  var hist=minutes.slice(0,-1).slice(-15);if(hist.length>=10){var hi=-1e18,lo=1e18;for(var i=0;i<hist.length;i++){if(hist[i].h>hi)hi=hist[i].h;if(hist[i].l<lo)lo=hist[i].l}
-  if(price>hi&&ok("bo",180000))event("g","🚀","Пробій вгору!","вище максимуму 15 хв ("+fP(hi)+")"+(ratio>0?" · обсяг підтверджує":" · покупців мало"),true,1);
-  else if(price<lo&&ok("bo",180000))event("r","🕳️","Пробій вниз!","нижче мінімуму 15 хв ("+fP(lo)+")"+(ratio<0?" · обсяг підтверджує":" · продавців мало"),true,-1)}
+  if(price>hi&&ok("bo",180000)){event("g","🚀","Пробій вгору!","вище максимуму 15 хв ("+fP(hi)+")"+(ratio>0?" · обсяг підтверджує":" · покупців мало"),true,1);bigFX(true,tot,2.6,"🚀 ПРОБІЙ ВГОРУ!<small>вище максимуму 15 хв · "+fP(hi)+"</small>")}
+  else if(price<lo&&ok("bo",180000)){event("r","🕳️","Пробій вниз!","нижче мінімуму 15 хв ("+fP(lo)+")"+(ratio<0?" · обсяг підтверджує":" · продавців мало"),true,-1);bigFX(false,tot,2.6,"🕳️ ПРОБІЙ ВНИЗ!<small>нижче мінімуму 15 хв · "+fP(lo)+"</small>")}}
 },500);
 /* ---------- поле битви ---------- */
 var F=$("field"),fx=F.getContext("2d"),CH=$("chart"),cx=CH.getContext("2d"),DPR=1,FW=0,FH=0,CW=0,CHH=0;
@@ -217,28 +244,69 @@ setInterval(function(){if(!price||bars.length<30)return;var B=bars.slice(-60),S=
  figs=figs.filter(function(f){return n-f.t<600000})},5000);
 var MK=$("mkt"),mx=MK.getContext("2d"),MW=0,MH=0;
 function sizeM(){if(!MK||!MK.clientWidth)return;MW=MK.clientWidth*DPR;MH=MK.clientHeight*DPR;MK.width=MW;MK.height=MH}
-function drawMarket(T){if(!MW)sizeM();if(!MW)return;var W=MW,H=MH,pad=8*DPR,ax=62*DPR,top=34*DPR,bot=18*DPR;mx.clearRect(0,0,W,H);var n=Date.now(),span=Math.min(600000,Math.max(120000,(bars.length?n-bars[0].t:0)+20000)),from=n-span,B=bars.filter(function(b){return b.t>=from});
+function drawMarket(T){HIT=[];if(!MW)sizeM();if(!MW)return;var W=MW,H=MH,pad=8*DPR,ax=62*DPR,top=34*DPR,bot=18*DPR;mx.clearRect(0,0,W,H);var n=Date.now(),span=Math.min(600000,Math.max(120000,(bars.length?n-bars[0].t:0)+20000)),from=n-span,B=bars.filter(function(b){return b.t>=from});
  if(B.length<2||!price){mx.fillStyle="#8a90a2";mx.font="700 "+(13*DPR)+"px Inter,sans-serif";mx.textAlign="center";mx.fillText(price?"Збираю перші свічки…":"Підключаюсь до бірж…",W/2,H/2);return}
  var hi=-1e18,lo=1e18,i;for(i=0;i<B.length;i++){hi=Math.max(hi,B[i].h);lo=Math.min(lo,B[i].l)}var m=Math.max((hi-lo)*.25,price*.0006);hi+=m;lo-=m;
  var pw=W-ax-pad,X=function(t){return pad+(t-from)/span*pw},Y=function(p){return top+(hi-p)/(hi-lo)*(H-top-bot)};
  mx.strokeStyle="rgba(255,255,255,.05)";mx.lineWidth=1;mx.fillStyle="#8a90a2";mx.font=(10*DPR)+"px ui-monospace,Consolas,monospace";mx.textAlign="left";for(i=0;i<=4;i++){var pv=lo+(hi-lo)*i/4,yy=Y(pv);mx.beginPath();mx.moveTo(pad,yy);mx.lineTo(W-ax,yy);mx.stroke();mx.fillText(fP(pv),W-ax+4*DPR,yy+3*DPR)}
  var wm=0;["b","a"].forEach(function(s){walls[s].forEach(function(w){wm=Math.max(wm,w.u)})});
- ["b","a"].forEach(function(s){walls[s].forEach(function(w,k){if(w.p<lo||w.p>hi)return;var y=Y(w.p),len=Math.max(30*DPR,(w.u/wm)*pw*.45),pulse=.55+.25*Math.sin(T/350+k);mx.fillStyle=s==="a"?"rgba(255,59,92,"+(.22*pulse)+")":"rgba(0,245,147,"+(.22*pulse)+")";mx.fillRect(W-ax-len,y-4*DPR,len,8*DPR);mx.fillStyle=s==="a"?"#ff3b5c":"#00f593";mx.fillRect(W-ax-len,y-1*DPR,len,2*DPR);
+ ["b","a"].forEach(function(s){walls[s].forEach(function(w,k){if(w.p<lo||w.p>hi)return;var y=Y(w.p),len=Math.max(30*DPR,(w.u/wm)*pw*.45),pulse=.55+.25*Math.sin(T/350+k);mx.fillStyle=s==="a"?"rgba(255,59,92,"+(.22*pulse)+")":"rgba(0,245,147,"+(.22*pulse)+")";mx.fillRect(W-ax-len,y-4*DPR,len,8*DPR);mx.fillStyle=s==="a"?"#ff3b5c":"#00f593";mx.fillRect(W-ax-len,y-1*DPR,len,2*DPR);HIT.push({k:"line",y:y,x0:W-ax-len,x1:W-ax,col:s==="a"?"#ff3b5c":"#00f593",html:"🧱 <b>"+(s==="a"?"Стіна продавців":"Стіна покупців")+"</b><br>"+fQ(w.q)+" "+COIN+" · "+fU(w.u)+"<br>ціна "+fP(w.p)+" · "+Math.abs(pct(w.p,price)).toFixed(2)+"% від поточної<br>×"+Math.round(w.u/(walls.med||1))+" від звичайного рівня стакану"});
   if(k===0){mx.font="800 "+(10*DPR)+"px Inter,sans-serif";mx.textAlign="right";mx.fillStyle=s==="a"?"#ff8095":"#5cf5b5";mx.fillText((s==="a"?"стіна: продають ":"стіна: купують ")+fQ(w.q)+" "+BASE(),W-ax-6*DPR,y-7*DPR)}})});
- function hl(lv,col,lab){if(!lv||lv.p<lo||lv.p>hi)return;var y=Y(lv.p);mx.setLineDash([6*DPR,5*DPR]);mx.strokeStyle=col;mx.lineWidth=1.4*DPR;mx.beginPath();mx.moveTo(Math.max(pad,X(lv.t)),y);mx.lineTo(W-ax,y);mx.stroke();mx.setLineDash([]);mx.fillStyle=col;mx.font="800 "+(10*DPR)+"px Inter,sans-serif";mx.textAlign="left";mx.fillText(lab,Math.max(pad,X(lv.t))+4*DPR,y+(lab==="опір"?-5:12)*DPR)}
+ function hl(lv,col,lab){if(!lv||lv.p<lo||lv.p>hi)return;var y=Y(lv.p);HIT.push({k:"line",y:y,x0:Math.max(pad,X(lv.t)),x1:W-ax-120*DPR,col:col,html:(lab==="опір"?"⛔ <b>Опір</b>: тут ціна розвернулась вниз":"🛟 <b>Підтримка</b>: тут ціна розвернулась вгору")+"<br>"+fP(lv.p)+" · "+Math.abs(pct(lv.p,price)).toFixed(2)+"% від ціни"});mx.setLineDash([6*DPR,5*DPR]);mx.strokeStyle=col;mx.lineWidth=1.4*DPR;mx.beginPath();mx.moveTo(Math.max(pad,X(lv.t)),y);mx.lineTo(W-ax,y);mx.stroke();mx.setLineDash([]);mx.fillStyle=col;mx.font="800 "+(10*DPR)+"px Inter,sans-serif";mx.textAlign="left";mx.fillText(lab,Math.max(pad,X(lv.t))+4*DPR,y+(lab==="опір"?-5:12)*DPR)}
+ for(var bi=0;bi<brk.length;bi++){var bk=brk[bi],ag=(n-bk.t)/20000;if(bk.p<lo||bk.p>hi)continue;var by0=Y(bk.p),fl=.5+.5*Math.sin(T/90);mx.strokeStyle=(bk.up?"rgba(0,245,147,":"rgba(255,59,92,")+((1-ag)*(.5+.5*fl))+")";mx.lineWidth=(3+3*fl)*DPR;mx.beginPath();mx.moveTo(pad,by0);mx.lineTo(W-ax,by0);mx.stroke();mx.globalAlpha=1-ag;mx.font="900 "+(14*DPR)+"px Inter,sans-serif";mx.textAlign="center";mx.fillStyle=bk.up?"#00f593":"#ff3b5c";mx.fillText(bk.up?"💥 ПРОБІЙ ОПОРУ":"💥 ПРОБІЙ ПІДТРИМКИ",pad+pw/2,by0+(bk.up?-10:20)*DPR);mx.globalAlpha=1}
  hl(levels.r,"rgba(255,128,149,.8)","опір");hl(levels.s,"rgba(92,245,181,.8)","підтримка");
- for(i=0;i<figs.length;i++){var f=figs[i],col=f.k==="db"?"#5cf5b5":f.k==="dt"?"#ff8095":"#ffc43d";mx.strokeStyle=col;mx.lineWidth=2*DPR;mx.beginPath();if(f.k==="tri"){mx.moveTo(X(f.pts[0].t),Y(f.pts[0].p));mx.lineTo(X(f.pts[1].t),Y(f.pts[1].p));mx.moveTo(X(f.pts[2].t),Y(f.pts[2].p));mx.lineTo(X(f.pts[3].t),Y(f.pts[3].p))}else{mx.moveTo(X(f.pts[0].t),Y(f.pts[0].p));mx.lineTo(X(f.pts[1].t),Y(f.pts[1].p))}mx.stroke();
-  for(var q=0;q<f.pts.length;q++){mx.beginPath();mx.arc(X(f.pts[q].t),Y(f.pts[q].p),4*DPR,0,6.283);mx.fillStyle=col;mx.fill()}var lp=f.pts[f.pts.length-1];mx.font="900 "+(11*DPR)+"px Inter,sans-serif";mx.textAlign="center";mx.fillText(f.k==="dt"?"⛰️ подвійна вершина":f.k==="db"?"🛟 подвійне дно":"🔺 трикутник",X(lp.t),Y(lp.p)+(f.k==="db"?20:-12)*DPR)}
+ for(i=0;i<figs.length;i++){var f=figs[i],fa=Math.min(1,(n-f.t)/900);mx.globalAlpha=fa;var col=f.k==="db"?"#5cf5b5":f.k==="dt"?"#ff8095":"#ffc43d";mx.strokeStyle=col;mx.lineWidth=2*DPR;mx.beginPath();if(f.k==="tri"){mx.moveTo(X(f.pts[0].t),Y(f.pts[0].p));mx.lineTo(X(f.pts[1].t),Y(f.pts[1].p));mx.moveTo(X(f.pts[2].t),Y(f.pts[2].p));mx.lineTo(X(f.pts[3].t),Y(f.pts[3].p))}else{mx.moveTo(X(f.pts[0].t),Y(f.pts[0].p));mx.lineTo(X(f.pts[1].t),Y(f.pts[1].p))}mx.stroke();
+  for(var q=0;q<f.pts.length;q++){mx.beginPath();mx.arc(X(f.pts[q].t),Y(f.pts[q].p),4*DPR,0,6.283);mx.fillStyle=col;mx.fill()}var lp=f.pts[f.pts.length-1];HIT.push({k:"pt",x:X(lp.t),y:Y(lp.p),r:16*DPR,col:col,html:f.k==="dt"?"⛰️ <b>Подвійна вершина</b><br>ціна двічі вдарилась у той самий максимум і не пробила — часто розворот вниз":f.k==="db"?"🛟 <b>Подвійне дно</b><br>двічі втримали той самий мінімум — часто розворот вгору":"🔺 <b>Трикутник</b><br>максимуми нижчі, мінімуми вищі — ціна стискається перед сильним рухом"});mx.font="900 "+(11*DPR)+"px Inter,sans-serif";mx.textAlign="center";mx.fillText(f.k==="dt"?"⛰️ подвійна вершина":f.k==="db"?"🛟 подвійне дно":"🔺 трикутник",X(lp.t),Y(lp.p)+(f.k==="db"?20:-12)*DPR);mx.globalAlpha=1}
  var bw=Math.max(2*DPR,pw/60*.55);for(i=0;i<B.length;i++){var b=B[i],x=X(b.t+5000),up=b.c>=b.o;mx.strokeStyle=mx.fillStyle=up?"rgba(0,245,147,.75)":"rgba(255,59,92,.75)";mx.lineWidth=1*DPR;mx.beginPath();mx.moveTo(x,Y(b.h));mx.lineTo(x,Y(b.l));mx.stroke();var y1=Y(Math.max(b.o,b.c)),y2=Y(Math.min(b.o,b.c));mx.fillRect(x-bw/2,y1,bw,Math.max(1*DPR,y2-y1))}
  var now=performance.now(),maxR=Math.min(34,pw/18)*DPR;for(i=0;i<mkb.length;i++){var k2=mkb[i];if(k2.t<from)continue;var age=Math.min(1,(now-k2.b)/450),ease=1-Math.pow(1-age,3),r=Math.max(3*DPR,Math.min(maxR,Math.sqrt(k2.usd/p95)*3.4*DPR))*(age<1?ease*1.15:1),bx=X(k2.t),by=Y(k2.px);
   mx.beginPath();mx.arc(bx,by,r,0,6.283);mx.fillStyle=k2.buy?"rgba(0,245,147,.33)":"rgba(255,59,92,.33)";mx.fill();mx.lineWidth=(k2.whale?2.2:1.2)*DPR;mx.strokeStyle=k2.whale?"#ffc43d":(k2.buy?"#00f593":"#ff3b5c");mx.stroke();
   if(age<1){mx.beginPath();mx.arc(bx,by,r*(1+age*.9),0,6.283);mx.strokeStyle=k2.buy?"rgba(0,245,147,"+(1-age)*.6+")":"rgba(255,59,92,"+(1-age)*.6+")";mx.lineWidth=2*DPR;mx.stroke()}
-  if(k2.whale){mx.fillStyle="#fff";mx.font="800 "+(10*DPR)+"px Inter,sans-serif";mx.textAlign="center";mx.fillText(fU(k2.usd),bx,by-r-4*DPR)}}
+  HIT.push({k:"pt",x:bx,y:by,r:r,col:k2.whale?"#ffc43d":(k2.buy?"#00f593":"#ff3b5c"),html:(k2.whale?"🐋 ":"")+"<b>"+(k2.buy?"Купили по ринку":"Продали по ринку")+"</b><br>"+fQ(k2.q||k2.usd/k2.px)+" "+COIN+" · "+fU(k2.usd)+"<br>"+(k2.ex||"")+" · по "+fP(k2.px)+"<br>"+new Date(k2.t).toLocaleTimeString("uk-UA")});if(k2.whale){mx.fillStyle="#fff";mx.font="800 "+(10*DPR)+"px Inter,sans-serif";mx.textAlign="center";mx.fillText(fU(k2.usd),bx,by-r-4*DPR)}}
  var yp=Y(price);mx.setLineDash([4*DPR,4*DPR]);mx.strokeStyle="#ffc43d";mx.lineWidth=1*DPR;mx.beginPath();mx.moveTo(pad,yp);mx.lineTo(W-ax,yp);mx.stroke();mx.setLineDash([]);mx.fillStyle="#ffc43d";mx.fillRect(W-ax,yp-8*DPR,ax-2*DPR,16*DPR);mx.fillStyle="#000";mx.font="800 "+(10*DPR)+"px ui-monospace,Consolas,monospace";mx.textAlign="left";mx.fillText(fP(price),W-ax+3*DPR,yp+4*DPR);
  var w1=win(60000),tot=w1.b+w1.s,bp=tot?Math.round(w1.b/tot*100):50;mx.font="900 "+(13*DPR)+"px Inter,sans-serif";mx.textAlign="left";mx.fillStyle="#e8eaf0";mx.fillText(COIN+" · "+Math.round(span/60000)+" хв · свічки по 10 с",pad+2*DPR,17*DPR);mx.textAlign="right";mx.fillStyle=bp>=50?"#00f593":"#ff3b5c";mx.fillText((bp>=50?"🐂 ":"🐻 ")+(bp>=50?bp:100-bp)+"% за хв",W-ax-4*DPR,17*DPR);
  mx.fillStyle="#8a90a2";mx.font=(10*DPR)+"px Inter,sans-serif";mx.textAlign="center";for(i=0;i<=4;i++){var tt=from+i*span/4;mx.fillText(new Date(tt).toLocaleTimeString("uk-UA",{hour:"2-digit",minute:"2-digit"}),Math.min(W-ax-18*DPR,Math.max(18*DPR,X(tt))),H-4*DPR)}}
-function loop(T){if(VIEW==="battle")drawField(T);else drawMarket(T);if(!loop.c||T-loop.c>300){loop.c=T;drawChart()}if(price){var el=$("px");if(price!==shownPx){el.style.color=price>shownPx?"#00f593":"#ff3b5c";clearTimeout(el._t);el._t=setTimeout(function(){el.style.color=""},300);shownPx=price}el.textContent=fP(price)}requestAnimationFrame(loop)}
-renderCoins();upBtn();setView(VIEW);connect();requestAnimationFrame(loop);
+
+
+var brk=[];setInterval(function(){if(!price||Date.now()-t0<180000)return;var r=levels.r,s=levels.s,m=price*.0002;
+ if(r&&price>r.p+m&&ok("lr"+r.p,600000)){brk.push({p:r.p,up:true,t:Date.now()});event("g","💥","Пробій опору "+fP(r.p)+"!","бики проламали лінію опору",true,1);bigFX(true,0,2.8,"💥 ПРОБІЙ ОПОРУ!<small>"+COIN+" вище "+fP(r.p)+"</small>");levels.r=null}
+ if(s&&price<s.p-m&&ok("ls"+s.p,600000)){brk.push({p:s.p,up:false,t:Date.now()});event("r","💥","Пробій підтримки "+fP(s.p)+"!","ведмеді проламали лінію підтримки",true,-1);bigFX(false,0,2.8,"💥 ПРОБІЙ ПІДТРИМКИ!<small>"+COIN+" нижче "+fP(s.p)+"</small>");levels.s=null}
+ brk=brk.filter(function(b){return Date.now()-b.t<20000})},1000);
+/* ---------- великі ефекти ---------- */
+var fxBusy=0;function fxAdd(cls,html,ms,css){var e=document.createElement("div");e.className="a "+cls;e.innerHTML=html;if(css)for(var k in css)e.style.setProperty(k,css[k]);$("fxo").appendChild(e);setTimeout(function(){e.remove()},ms);return e}
+function bigFX(buy,usd,R,title){var n=Date.now();if(n<fxBusy)return;fxBusy=n+3500;R=Math.max(1,R||1);
+ fxAdd("fx-vig "+(buy?"g":"r"),"",1700);fxAdd("fx-title "+(buy?"g":"r"),title.indexOf("<small>")<0?title+"<small>"+fU(usd)+" · "+COIN+"</small>":title,2500);
+ fxAdd("fx-run "+(buy?"bull":"bear"),buy?'<span style="display:inline-block;transform:scaleX(-1)">🐂</span>':"🐻",2500,{"--d":(buy?"":"-")+"170vw","font-size":"clamp(90px,"+Math.min(26,12+R*3)+"vw,"+Math.min(320,170+R*40)+"px)"});
+ var N=Math.min(36,Math.round(6+(R-1)*8)),em=buy?["💵","💰","🚀","💵","🟢"]:["📉","🩸","💸","🔻","🔴"];for(var i=0;i<N;i++)fxAdd("fx-fall",em[i%em.length],4300,{left:Math.random()*100+"vw","animation-duration":(1.8+Math.random()*1.8)+"s","animation-delay":(Math.random()*.7)+"s"});
+ if(R>=2.5){document.body.classList.remove("fx-shake");void document.body.offsetWidth;document.body.classList.add("fx-shake");[0,120,240,380].forEach(function(d){setTimeout(function(){haptic("heavy")},d)});try{if(vibOn&&navigator.vibrate)navigator.vibrate([80,40,80,40,140])}catch(e){}}else haptic("big")}
+window.__bbfx=function(b){fxBusy=0;bigFX(b,1.2e6,3,b?"БИКИ КУПУЮТЬ!":"ВЕДМЕДІ ТИСНУТЬ!")};
+/* ---------- широкий макет ---------- */
+var moved=[],Lc=document.createElement("div"),Rc=document.createElement("div");Lc.id="L";Rc.id="R";
+function mv(n,to){moved.push({n:n,p:n.parentNode,nx:n.nextSibling});to.appendChild(n)}
+function card(nodes){var c=document.createElement("div");c.className="card";Rc.appendChild(c);for(var i=0;i<nodes.length;i++)mv(nodes[i],c);return c}
+function layout(){var w=innerWidth>=900;if(w===WIDE)return;WIDE=w;document.body.classList.toggle("wide",w);var wr=document.querySelector(".wrap");
+ if(w){wr.appendChild(Lc);wr.appendChild(Rc);mv(document.querySelector(".price"),Lc);mv($("vBattle"),Lc);mv($("vMarket"),Lc);
+  var h1=document.createElement("h4");h1.className="h4";h1.textContent="⚖️ Тиск сторін";card([h1,document.querySelector(".tug"),$("stats")]);
+  var h2=document.createElement("h4");h2.className="h4";h2.textContent="⚡ Події ринку";card([h2,$("pFeed")]);
+  var tp=document.querySelector("#vMarket .h4");card([tp,$("tape")]);mv(document.querySelector(".foot"),Rc);
+  $("vBattle").style.display="";$("vMarket").style.display="";$("pFeed").style.display="";$("pChart").style.display="none"}
+ else{for(var i=moved.length-1;i>=0;i--){var m=moved[i];m.p.insertBefore(m.n,m.nx)}moved=[];Lc.remove();Rc.innerHTML="";Rc.remove();var hs=document.querySelectorAll(".card");for(i=0;i<hs.length;i++)hs[i].remove();setView(VIEW)}
+ size()}
+addEventListener("resize",layout);
+function initFs(){if(!TG||!TG.requestFullscreen||!TG.isVersionAtLeast||!TG.isVersionAtLeast("8.0"))return;var b=$("bFs");b.style.display="";
+ b.onclick=function(){try{if(TG.isFullscreen)TG.exitFullscreen();else TG.requestFullscreen()}catch(e){}haptic("sel")};
+ if(TG.onEvent)TG.onEvent("fullscreenChanged",function(){setTimeout(function(){layout();size()},200)});
+ var desk=["tdesktop","macos","weba","webk","web"].indexOf(TG.platform)>=0;if(desk&&!TG.isFullscreen){try{TG.requestFullscreen()}catch(e){}}}
+/* ---------- інтерактив ---------- */
+var tip=document.createElement("div");tip.style.cssText="position:fixed;z-index:9;pointer-events:none;display:none;max-width:240px;padding:8px 10px;border-radius:10px;background:#151826f2;border:1px solid #444a5e;font:700 12.5px Inter,sans-serif;color:#e8eaf0;box-shadow:0 8px 24px #000a";document.body.appendChild(tip);
+var HIT=[],tipT=0;function showTip(x,y,html,col){tip.innerHTML=html;tip.style.borderColor=col||"#444a5e";tip.style.display="block";var r=tip.getBoundingClientRect(),L=Math.min(innerWidth-r.width-8,Math.max(8,x+12)),Tp=y-r.height-12;if(Tp<8)Tp=y+16;tip.style.left=L+"px";tip.style.top=Tp+"px";clearTimeout(tipT);tipT=setTimeout(function(){tip.style.display="none"},3500)}
+function mktHit(ev){var r=MK.getBoundingClientRect(),x=(ev.clientX-r.left)*DPR,y=(ev.clientY-r.top)*DPR,best=null,bd=1e9;for(var i=0;i<HIT.length;i++){var h=HIT[i],d=h.k==="line"?Math.abs(y-h.y)+(x<h.x0||x>h.x1?1e6:0):Math.hypot(x-h.x,y-h.y)-h.r;if(d<bd){bd=d;best=h}}
+ if(best&&bd<14*DPR){showTip(ev.clientX,ev.clientY,best.html,best.col);if(ev.type==="pointerdown")haptic("light")}else if(ev.type==="pointerdown")tip.style.display="none"}
+MK.addEventListener("pointermove",mktHit);MK.addEventListener("pointerdown",mktHit);MK.addEventListener("pointerleave",function(){tip.style.display="none"});
+var votes={b:0,s:0};F.addEventListener("pointerdown",function(ev){var r=F.getBoundingClientRect(),x=(ev.clientX-r.left)*DPR,y=(ev.clientY-r.top)*DPR,bull=x<front*FW;votes[bull?"b":"s"]++;
+ burst(x,y,bull?"#00f593":"#ff3b5c",26,5);chargers.push({buy:bull,x:x,y:y,sz:Math.round(46*DPR),v:(bull?1:-1)*6*DPR,lab:bull?"+1 🐂 твій голос":"+1 🐻 твій голос",ph:0});kick+=(bull?1:-1)*.012;haptic("medium");
+ if((votes.b+votes.s)%10===0)event("y","🗳️","Твої голоси: 🐂 "+votes.b+" · 🐻 "+votes.s,"тисни на поле — підтримуй свою сторону",false,0)});
+function loop(T){if(WIDE||VIEW==="battle")drawField(T);if(WIDE||VIEW==="market")drawMarket(T);if(!loop.c||T-loop.c>300){loop.c=T;drawChart()}if(price){var el=$("px");if(price!==shownPx){el.style.color=price>shownPx?"#00f593":"#ff3b5c";clearTimeout(el._t);el._t=setTimeout(function(){el.style.color=""},300);shownPx=price}el.textContent=fP(price)}requestAnimationFrame(loop)}
+renderCoins();upBtn();setView(VIEW);layout();initFs();connect();requestAnimationFrame(loop);
 event("y","⚔️","Битва: "+COIN,"перші 5 хвилин вчуся, яка тут норма обсягів",false,0);
 })();
 </script>
