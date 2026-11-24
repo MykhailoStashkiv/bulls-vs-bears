@@ -22,6 +22,11 @@ import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 
+FEEDS_UA = [
+    ("Incrypted", "https://incrypted.com/ua/feed/"),
+    ("ITC.ua", "https://itc.ua/ua/blokcheyn/feed/"),
+    ("ForkLog UA", "https://forklog.com.ua/feed/"),
+]
 FEEDS = [
     ("CoinDesk", "https://www.coindesk.com/arc/outboundfeeds/rss/"),
     ("Cointelegraph", "https://cointelegraph.com/rss"),
@@ -42,7 +47,7 @@ def fetch(url, data=None, headers=None, timeout=30):
 def news(hours=6):
     cutoff = time.time() - hours * 3600
     out = []
-    for src, url in FEEDS:
+    for src, url in FEEDS_UA + FEEDS:
         try:
             root = ET.fromstring(fetch(url))
         except Exception as e:  # noqa: BLE001
@@ -59,8 +64,10 @@ def news(hours=6):
             desc = re.sub(r"<[^>]+>", " ", it.findtext("description") or "")
             desc = html.unescape(re.sub(r"\s+", " ", desc)).strip()[:300]
             if title and link and ts >= cutoff:
-                out.append({"src": src, "title": html.unescape(title), "link": link, "ts": ts, "desc": desc})
-    out.sort(key=lambda x: -x["ts"])
+                ua = any(src == s for s, _ in FEEDS_UA)
+                out.append({"src": src, "title": html.unescape(title), "link": link, "ts": ts, "desc": desc, "ua": ua})
+    out.sort(key=lambda x: (not x["ua"], -x["ts"]))
+    print("свіжих новин:", len(out), "з них українських:", sum(1 for x in out if x["ua"]))
     return out
 
 
@@ -79,6 +86,18 @@ def market():
     return res
 
 
+def mymemory(t):
+    try:
+        q = urllib.parse.urlencode({"q": t[:450], "langpair": "en|uk"})
+        d = json.loads(fetch("https://api.mymemory.translated.net/get?" + q))
+        r = (d.get("responseData") or {}).get("translatedText") or ""
+        if r and "MYMEMORY WARNING" not in r.upper():
+            return html.unescape(r)
+    except Exception as e:  # noqa: BLE001
+        print("MyMemory не вдався:", e)
+    return None
+
+
 def to_uk(texts):
     """Безкоштовний переклад заголовків на українську (Google gtx)."""
     if not texts:
@@ -91,8 +110,8 @@ def to_uk(texts):
         if len(out) == len(texts):
             return [o.strip() for o in out]
     except Exception as e:  # noqa: BLE001
-        print("переклад не вдався:", e)
-    return texts
+        print("переклад Google не вдався:", e)
+    return [mymemory(t) or t for t in texts]
 
 
 def ai_text(items, mk):
@@ -190,8 +209,8 @@ def main():
     if len(items) < 2:
         print("мало свіжих новин, пропускаю")
         return
-    uk = to_uk([x["title"] for x in items[:8]])
-    for x, t in zip(items[:8], uk):
+    need = [x for x in items[:8] if not x.get("ua")]
+    for x, t in zip(need, to_uk([x["title"] for x in need])):
         x["uk"] = t
     ai = ai_text(items, mk)
     text = build(items, mk, ai)
