@@ -137,7 +137,7 @@ def build(items, mk, ai):
     src = "\n".join(f'<a href="{html.escape(x["link"])}">{html.escape(x["src"])}: {html.escape(x["title"][:70])}</a>' for x in items[:3])
     tail = ["", "📊 " + mline, "", "🔗 " + src.replace("\n", "\n🔗 "), "",
             "⚔️ Out-tap a friend in 60 s 👉 @BullBearLiveBot",
-            "<i>AI-generated summary of public news. Not financial advice.</i>"]
+            "<i>" + ("AI-generated summary of public news. " if ai else "Public crypto news digest. ") + "Not financial advice.</i>"]
     return "\n".join(head) + body + "\n" + "\n".join(tail)
 
 
