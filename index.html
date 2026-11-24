@@ -103,7 +103,7 @@ body.wide .logo{font-size:22px}
 <body>
 <div id="toast"></div><div id="fxo"></div>
 <div class="wrap">
-  <div class="top"><div class="logo">🐂 <b>BULL</b><i>BEAR</i> 🐻</div><div class="sp"></div><button class="ib" id="bSnd" aria-label="Звук">🔊</button><button class="ib" id="bVib" aria-label="Вібрація">📳</button><button class="ib" id="bFs" aria-label="Повний екран" style="display:none">⛶</button></div>
+  <div class="top"><div class="logo">🐂 <b>BULL</b><i>BEAR</i> 🐻</div><div class="sp"></div><button class="ib" id="bSnd" aria-label="Звук">🔊</button><button class="ib" id="bVib" aria-label="Вібрація">📳</button><button class="ib" id="bLang" aria-label="Language">🌐</button><button class="ib" id="bFs" aria-label="Повний екран" style="display:none">⛶</button></div>
   <div class="coins" id="coins"></div>
   <div class="price"><div><div id="px">—</div><div id="chg">підключаюсь до бірж…</div></div><div id="verdict">⏳<small>чекаю угоди…</small></div></div>
   <div class="seg" id="segV"><button class="on" data-v="battle">⚔️ Битва</button><button data-v="market">📊 Ринок</button></div>
@@ -129,6 +129,121 @@ if(TG){try{TG.ready();TG.expand();if(TG.disableVerticalSwipes)TG.disableVertical
 var COINS={BTC:{cb:"BTC-USD",kr:"BTC/USD",by:"BTCUSDT",ok:"BTC-USDT-SWAP",okc:0.01},ETH:{cb:"ETH-USD",kr:"ETH/USD",by:"ETHUSDT",ok:"ETH-USDT-SWAP",okc:0.1},SOL:{cb:"SOL-USD",kr:"SOL/USD",by:"SOLUSDT",ok:"SOL-USDT-SWAP",okc:1},XRP:{cb:"XRP-USD",kr:"XRP/USD",by:"XRPUSDT",ok:"XRP-USDT-SWAP",okc:100},DOGE:{cb:"DOGE-USD",kr:"DOGE/USD",by:"DOGEUSDT",ok:"DOGE-USDT-SWAP",okc:1000}};
 var EXN={cb:"Coinbase",kr:"Kraken",by:"Bybit",ok:"OKX"};
 function LS(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}}
+/* ---------- мова: англійська для всіх, крім uk/ru/be ---------- */
+var LANG=(function(){var c=(TG&&TG.initDataUnsafe&&TG.initDataUnsafe.user&&TG.initDataUnsafe.user.language_code)||navigator.language||"en";c=(c||"en").toLowerCase();var f=LS("tgb_lang");if(f)return f;return /^(uk|ru|be)/.test(c)?"uk":"en"})();
+var EN=LANG==="en";
+var DICT=[
+["Кожна кулька — реальна угода на Coinbase, Kraken, Bybit і OKX: зелені — купівлі по ринку, червоні — продажі. Це візуалізація ринку, а не торгова порада.","Every ball is a real trade on Coinbase, Kraken, Bybit and OKX: green = market buys, red = market sells. Market visualization, not trading advice."],
+["⛰️ <b>Подвійна вершина</b><br>ціна двічі вдарилась у той самий максимум і не пробила — часто розворот вниз","⛰️ <b>Double top</b><br>price hit the same high twice and failed — often a reversal down"],
+["🔺 <b>Трикутник</b><br>максимуми нижчі, мінімуми вищі — ціна стискається перед сильним рухом","🔺 <b>Triangle</b><br>lower highs, higher lows — price is coiling before a big move"],
+["🛟 <b>Подвійне дно</b><br>двічі втримали той самий мінімум — часто розворот вгору","🛟 <b>Double bottom</b><br>the same low held twice — often a reversal up"],
+["Дивись, як бики б'ються з ведмедями на крипторинку наживо 🐂⚔️🐻","Watch bulls fight bears on the crypto market, live 🐂⚔️🐻"],
+[" раунди поспіль у битві биків і ведмедів 🐂⚔️🐻 Спробуй перебити!"," rounds in a row in the Bulls vs Bears battle 🐂⚔️🐻 Can you beat me?"],
+["Обери сторону — через 60 секунд дізнаєшся, чи вгадав.","Pick a side — in 60 seconds you'll know if you were right."],
+["Ринок — він такий. Реванш?","That's the market. Rematch?"],
+["🤝 Нічия — ціна не зрушила. Ще раз!","🤝 Draw — price didn't move. Again!"],
+["тисни на поле — підтримуй свою сторону","tap the field to back your side"],
+["перші 5 хвилин вчуся, яка тут норма обсягів","learning normal volume for the first 5 minutes"],
+["перші хвилини вчуся, яка тут норма","learning what's normal for the first minutes"],
+["Поглинання: покупці тиснуть, ціна стоїть","Absorption: buyers push, price won't move"],
+["Поглинання: продавці тиснуть, ціна стоїть","Absorption: sellers push, price won't move"],
+["хтось великий продає лімітками","a big player is selling with limit orders"],
+["хтось великий скуповує лімітками","a big player is soaking up with limit orders"],
+["ведмеді проламали лінію підтримки","bears broke the support line"],
+["бики проламали лінію опору","bulls broke the resistance line"],
+["⛔ <b>Опір</b>: тут ціна розвернулась вниз","⛔ <b>Resistance</b>: price turned down here"],
+["🛟 <b>Підтримка</b>: тут ціна розвернулась вгору","🛟 <b>Support</b>: price turned up here"],
+["Графік з'явиться за кілька секунд…","Chart will appear in a few seconds…"],
+["Фігура: трикутник стискається","Pattern: triangle tightening"],
+["Фігура: подвійна вершина","Pattern: double top"],
+["Фігура: подвійне дно","Pattern: double bottom"],
+["ціна затискається між ","price is squeezed between "],
+[" — чекай пробою"," — breakout coming"],
+["двічі не пробили ","failed twice at "],
+["двічі втримали ","held twice at "],
+[" — ведмежий сигнал"," — bearish sign"],
+[" — бичачий сигнал"," — bullish sign"],
+[" від звичайного рівня стакану"," vs a normal book level"],
+[" від звичайного рівня"," vs a normal level"],
+["% від поточної","% from current"],
+["% від ціни","% from price"],
+["🐋 Хтось великий КУПИВ","🐋 Someone big BOUGHT"],
+["🐋 Хтось великий ПРОДАВ","🐋 Someone big SOLD"],
+["🐋 КИТ КУПИВ ","🐋 WHALE BOUGHT "],
+["🐋 КИТ ПРОДАВ ","🐋 WHALE SOLD "],
+["💥 ПРОБІЙ ПІДТРИМКИ","💥 SUPPORT BROKEN"],
+["💥 ПРОБІЙ ОПОРУ","💥 RESISTANCE BROKEN"],
+["🚀 ПРОБІЙ ВГОРУ!","🚀 BREAKOUT UP!"],
+["🕳️ ПРОБІЙ ВНИЗ!","🕳️ BREAKDOWN!"],
+["вище максимуму 15 хв","above the 15-min high"],
+["нижче мінімуму 15 хв","below the 15-min low"],
+["Пробій підтримки ","Support broken "],
+["Пробій опору ","Resistance broken "],
+["Пробій вгору!","Breakout up!"],
+["Пробій вниз!","Breakdown!"],
+[" · обсяг підтверджує"," · volume confirms"],
+[" · покупців мало"," · few buyers"],
+[" · продавців мало"," · few sellers"],
+["БИКИ КУПУЮТЬ!","BULLS ARE BUYING!"],
+["ВЕДМЕДІ ТИСНУТЬ!","BEARS ARE SELLING!"],
+["Хвиля покупок!","Buying wave!"],
+["Хвиля продажів!","Selling wave!"],
+["Стіна продавців","Sell wall"],
+["Стіна покупців","Buy wall"],
+["стіна: продають ","wall: selling "],
+["стіна: купують ","wall: buying "],
+["стіна продавців","sell wall"],
+["стіна покупців","buy wall"],
+["Купили по ринку","Market buy"],
+["Продали по ринку","Market sell"],
+["Кит купив ","Whale bought "],
+["Кит продав ","Whale sold "],
+["Твої голоси: 🐂 ","Your votes: 🐂 "],
+["+1 🐂 твій голос","+1 🐂 your vote"],
+["+1 🐻 твій голос","+1 🐻 your vote"],
+["ТВІЙ ВЕДМІДЬ 🐻","YOUR BEAR 🐻"],
+["ТВІЙ БИК 🐂","YOUR BULL 🐂"],
+["🐂 Ти за биків","🐂 You're with the bulls"],
+["🐻 Ти за ведмедів","🐻 You're with the bears"],
+["… тримайся!","… hold on!"],
+["поки нічия","draw so far"],
+["виграєш","winning"],["програєш","losing"],
+["Вгадав!","Called it!"],["Не вгадав.","Missed."],
+[" — ти в ударі!"," — you're on fire!"],
+["🔥 СЕРІЯ ","🔥 STREAK "],["🎯 ВГАДАВ!","🎯 CALLED IT!"],
+[" не підвели"," delivered"],
+["Серія 🔥","Streak 🔥"],
+["Я вгадав ","I called "],
+["🎯 Раунд 60 с: куди піде ціна?","🎯 60-sec round: where's price going?"],
+["🐂 Вгору","🐂 Up"],["🐻 Вниз","🐻 Down"],
+["📣 Покликати друга в битву","📣 Invite a friend to the battle"],
+["🐂 Бики тиснуть","🐂 Bulls pushing"],["🐻 Ведмеді тиснуть","🐻 Bears pushing"],["⚖️ Рівновага","⚖️ Balanced"],
+["ціна стоїть","price flat"],["ціна ↑ ","price ↑ "],["ціна ↓ ","price ↓ "],
+["тиск за хвилину","pressure, last minute"],
+["обсяг за хв","volume / min"],["перевага за 5 хв","5-min edge"],["«кит» зараз від","whale size now"],
+["⚡ Події ринку","⚡ Market events"],["⚖️ Тиск сторін","⚖️ Pressure"],["🌊 Живий потік ринку","🌊 Live trade tape"],
+["⚡ Події","⚡ Events"],["📈 Графік","📈 Chart"],["⚔️ Битва","⚔️ Battle"],["📊 Ринок","📊 Market"],
+["підключаюсь до бірж…","connecting to exchanges…"],["Підключаюсь до бірж…","Connecting to exchanges…"],["Збираю перші свічки…","Collecting first candles…"],
+["чекаю угоди…","waiting for trades…"],
+[" хв · свічки по 10 с"," min · 10-sec candles"],
+["% за хв","% / min"],[" за хвилину"," per minute"],[" за хв"," / min"],
+[" від норми"," vs normal"],
+["подвійна вершина","double top"],["подвійне дно","double bottom"],["трикутник","triangle"],
+["підтримка","support"],["опір","resistance"],
+["купили ","bought "],["продали ","sold "],["купили","bought"],["продали","sold"],["кит","whale"],
+["Битва: ","Battle: "],
+["бики","bulls"],["ведмеді","bears"],
+[" вище "," above "],[" нижче "," below "],[" · по "," · at "],["на ","at "],
+["1хв","1m"],["5хв","5m"],["15хв","15m"]
+];
+DICT.sort(function(a,b){return b[0].length-a[0].length});
+var TRC=new Map();
+function tr(s){if(!EN||typeof s!=="string"||!/[А-Яа-яІіЇїЄєҐґ]/.test(s))return s;var c=TRC.get(s);if(c!==undefined)return c;var o=s;for(var i=0;i<DICT.length;i++)if(o.indexOf(DICT[i][0])>=0)o=o.split(DICT[i][0]).join(DICT[i][1]);if(TRC.size>3000)TRC.clear();TRC.set(s,o);return o}
+if(EN){(function(){var P=Element.prototype,d=Object.getOwnPropertyDescriptor(P,"innerHTML");Object.defineProperty(P,"innerHTML",{get:d.get,set:function(v){d.set.call(this,tr(v))},configurable:true});
+ var N=Node.prototype,t=Object.getOwnPropertyDescriptor(N,"textContent");Object.defineProperty(N,"textContent",{get:t.get,set:function(v){t.set.call(this,tr(v))},configurable:true});
+ var C=CanvasRenderingContext2D.prototype,ft=C.fillText;C.fillText=function(s,x,y,m){return m===undefined?ft.call(this,tr(String(s)),x,y):ft.call(this,tr(String(s)),x,y,m)};
+ var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);var a=[];while(w.nextNode())a.push(w.currentNode);a.forEach(function(n){var v=tr(n.nodeValue);if(v!==n.nodeValue)n.nodeValue=v});
+ document.documentElement.lang="en"})()}
 var start=(TG&&TG.initDataUnsafe&&TG.initDataUnsafe.start_param)||"";start=start.toUpperCase();
 var COIN=COINS[start]?start:(LS("tgb_coin")||"BTC");if(!COINS[COIN])COIN="BTC";
 var $=function(id){return document.getElementById(id)};
@@ -344,7 +459,7 @@ var votes={b:0,s:0};F.addEventListener("pointerdown",function(ev){var r=F.getBou
  burst(x,y,bull?"#00f593":"#ff3b5c",26,5);chargers.push({buy:bull,x:x,y:y,sz:Math.round(46*DPR),v:(bull?1:-1)*6*DPR,lab:bull?"+1 🐂 твій голос":"+1 🐻 твій голос",ph:0});kick+=(bull?1:-1)*.012;haptic("medium");
  if((votes.b+votes.s)%10===0)event("y","🗳️","Твої голоси: 🐂 "+votes.b+" · 🐻 "+votes.s,"тисни на поле — підтримуй свою сторону",false,0)});
 function loop(T){if(WIDE||VIEW==="battle"){drawField(T);drawExtras(T)}if(WIDE||VIEW==="market")drawMarket(T);if(!loop.c||T-loop.c>300){loop.c=T;drawChart()}if(price){var el=$("px");if(price!==shownPx){el.style.color=price>shownPx?"#00f593":"#ff3b5c";clearTimeout(el._t);el._t=setTimeout(function(){el.style.color=""},300);shownPx=price}el.textContent=fP(price)}requestAnimationFrame(loop)}
-renderCoins();upBtn();setView(VIEW);layout();initFs();connect();requestAnimationFrame(loop);
+$("bLang").textContent=EN?"🇺🇦":"🇬🇧";$("bLang").onclick=function(){LS("tgb_lang",EN?"uk":"en");location.reload()};renderCoins();upBtn();setView(VIEW);layout();initFs();connect();requestAnimationFrame(loop);
 event("y","⚔️","Битва: "+COIN,"перші 5 хвилин вчуся, яка тут норма обсягів",false,0);
 })();
 </script>
