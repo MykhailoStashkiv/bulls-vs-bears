@@ -13,6 +13,7 @@ import json
 import os
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -154,8 +155,23 @@ def send(token, chat, photo, text):
         data=body,
         headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
     )
-    with urllib.request.urlopen(req, timeout=60) as r:
-        res = json.loads(r.read())
+    for attempt in range(4):
+        try:
+            with urllib.request.urlopen(req, timeout=60) as r:
+                res = json.loads(r.read())
+            break
+        except urllib.error.HTTPError as e:
+            info = {}
+            try:
+                info = json.loads(e.read())
+            except Exception:
+                pass
+            print("Telegram:", e.code, info.get("description"))
+            if e.code != 429 or attempt == 3:
+                raise
+            wait = int((info.get("parameters") or {}).get("retry_after", 30)) + 2
+            print(f"чекаю {wait} с і пробую ще раз")
+            time.sleep(min(wait, 240))
     if not res.get("ok"):
         raise RuntimeError(res)
 
