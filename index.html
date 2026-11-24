@@ -526,7 +526,6 @@ function dJoin(code){if(typeof Peer==="undefined"){dMsg("⚠️ Модуль д�
   c.on("close",function(){if(D.on){dMsg("З'єднання закрилось.");D.on=false;D.live=false;D.mode=null;dUI()}})});
  p.on("error",function(e){dMsg("⚠️ Кімнату не знайдено або вона вже закрита ("+(e.type||e)+"). Попроси друга створити новий виклик.");D.mode=null;$("dBtns").style.visibility="visible"})}
 (function(){var sp=(TG&&TG.initDataUnsafe&&TG.initDataUnsafe.start_param)||"",m=/^duel_([a-z0-9]{6})$/.exec(sp)||/duel=([a-z0-9]{6})/.exec(location.hash);if(m)setTimeout(function(){dJoin(m[1])},600)})();
-dTop();dUI();lvUI();
 var lastTap=0;function handUpd(){var hd=$("hand");if(!hd)return;var mineB=(D.on?D.me:MYS)==="b";hd.className=(mineB?"":"bear")+(Date.now()-lastTap<4000?" off":"");hd.style.left=mineB?"28%":"72%";hd.querySelector("b").textContent=D.on?(D.live?"Тапай швидше!":"Готуйся…"):"Тапни свою сторону"}setInterval(handUpd,300);
 function shakeField(){var v=$("vBattle");v.classList.remove("fx-shake");void v.offsetWidth;v.classList.add("fx-shake")}
 
@@ -538,6 +537,7 @@ var FZ={ts:[],until:0};
 function fzTap(){var n=Date.now();FZ.ts.push(n);while(FZ.ts.length&&n-FZ.ts[0]>1000)FZ.ts.shift();if(FZ.ts.length>=8&&n>FZ.until){FZ.until=n+3000;fxAdd("fx-title y","🔥 FRENZY ×2",1100,{color:"#ffc43d","font-size":"clamp(30px,7vw,70px)"});haptic("heavy")}return n<FZ.until?2:1}
 function tapSnd(){if(!sndOn)return;try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();var o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.type="square";o.frequency.setValueAtTime(D.me==="b"?660:520,t);g.gain.setValueAtTime(.035,t);g.gain.exponentialRampToValueAtTime(.0001,t+.05);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.06)}catch(e){}}
 var DH=[];try{DH=JSON.parse(LS("bb_hist")||"[]")}catch(e){DH=[]}
+dTop();dUI();lvUI();
 var lastSec=-1;setInterval(function(){var tm=$("dTm"),vb=$("vBattle");if(!D.live){tm.classList.remove("hot");vb.classList.remove("final");lastSec=-1;return}var rem=Math.max(0,60-(Date.now()-D.t0)/1000),s=Math.ceil(rem);if(rem<=10){tm.classList.add("hot");vb.classList.add("final");if(s!==lastSec){lastSec=s;haptic("light");if(sndOn)beep(D.f>=.5?1:-1,false)}}},100);
 /* ---------- великі ефекти ---------- */
 var fxBusy=0;function fxAdd(cls,html,ms,css){var e=document.createElement("div");e.className="a "+cls;e.innerHTML=html;if(css)for(var k in css)e.style.setProperty(k,css[k]);$("fxo").appendChild(e);setTimeout(function(){e.remove()},ms);return e}
