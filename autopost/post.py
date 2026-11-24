@@ -219,7 +219,13 @@ def main():
         send(token, chat, "battle.png", text)
     except Exception as e:  # noqa: BLE001
         print("фото не пройшло, надсилаю текстом:", e)
-        send_text(token, chat, text)
+        try:
+            send_text(token, chat, text)
+        except Exception as e2:  # noqa: BLE001
+            if "429" in str(e2) or "429" in str(e):
+                print("Telegram тимчасово обмежує бота (429). Спробую в наступну годину.")
+                return
+            raise
     print("опубліковано")
 
 

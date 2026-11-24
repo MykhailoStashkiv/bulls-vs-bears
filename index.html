@@ -78,7 +78,7 @@ body.wide .top,body.wide .coins{grid-column:1/-1}
 body.wide #L,body.wide #R{min-width:0}
 body.wide #segV,body.wide #segB,body.wide #pChart{display:none!important}
 body.wide #px{font-size:52px}body.wide #verdict{font-size:26px}body.wide #verdict small{font-size:13px}
-body.wide #field{height:44vh;min-height:300px}body.wide #mkt{height:38vh;min-height:260px}
+body.wide #field{height:36vh;min-height:250px}body.wide #mkt{height:32vh;min-height:230px}body.wide .game{padding:8px 12px}
 body.wide #tape{max-height:34vh}body.wide #pFeed{max-height:36vh;overflow:auto}
 body.wide .logo{font-size:22px}
 #R .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:12px}
@@ -110,7 +110,7 @@ body.wide .logo{font-size:22px}
   <div id="vBattle"><canvas id="field"></canvas></div>
   <div class="game" id="game"><div class="gt"><span>🎯 Раунд 60 с: куди піде ціна?</span><span class="gs">🏆 <b id="gW">0</b> · 🔥 <b id="gS">0</b></span></div>
     <div class="gb"><button class="up" id="gUp">🐂 Вгору</button><button class="dn" id="gDn">🐻 Вниз</button></div>
-    <div class="tm"><i id="gT"></i></div><div class="gm" id="gM">Обери сторону — через 60 секунд дізнаєшся, чи вгадав.</div></div>
+    <div class="tm"><i id="gT"></i></div><div class="gs" style="margin-top:6px;font-weight:700">👆 Тапай по полю — голос фанатів. На ціну він не впливає: фронт рухають лише реальні угоди.</div><div class="gm" id="gM">Обери сторону — через 60 секунд дізнаєшся, чи вгадав.</div></div>
   <div id="vMarket" style="display:none"><canvas id="mkt"></canvas>
     <div class="leg"><span><i style="background:#00f593"></i>купили</span><span><i style="background:#ff3b5c"></i>продали</span><span><i style="background:#ffc43d"></i>кит</span><span><b style="color:#ff8095">▬</b> стіна продавців</span><span><b style="color:#5cf5b5">▬</b> стіна покупців</span><span>┄ опір / підтримка</span></div>
     <h4 class="h4">🌊 Живий потік ринку</h4><div id="tape"></div></div>
@@ -143,7 +143,7 @@ var DICT=[
 ["Обери сторону — через 60 секунд дізнаєшся, чи вгадав.","Pick a side — in 60 seconds you'll know if you were right."],
 ["Ринок — він такий. Реванш?","That's the market. Rematch?"],
 ["🤝 Нічия — ціна не зрушила. Ще раз!","🤝 Draw — price didn't move. Again!"],
-["тисни на поле — підтримуй свою сторону","tap the field to back your side"],
+["голоси фанатів — на ціну не впливають, фронт рухає лише ринок","fan votes — they don't move price, only real trades move the front"],["👆 Тапай по полю — голос фанатів. На ціну він не впливає: фронт рухають лише реальні угоди.","👆 Tap the field to cheer. Fan votes don't move the price — only real trades move the front."],["🔄 Раунд скасовано — змінив монету.","🔄 Round cancelled — coin changed."],
 ["перші 5 хвилин вчуся, яка тут норма обсягів","learning normal volume for the first 5 minutes"],
 ["перші хвилини вчуся, яка тут норма","learning what's normal for the first minutes"],
 ["Поглинання: покупці тиснуть, ціна стоїть","Absorption: buyers push, price won't move"],
@@ -280,7 +280,7 @@ function connect(){gen++;var g=gen;for(var k in socks){try{socks[k].onclose=null
  renderEx()}
 function sock(k,url,onopen,onmsg,g){var ws;try{ws=new WebSocket(url)}catch(e){return}socks[k]=ws;ws.onopen=function(){ws._ok=1;renderEx();onopen(ws)};ws.onmessage=function(e){if(e.data==="pong")return;var m;try{m=JSON.parse(e.data)}catch(x){return}onmsg(m)};ws.onerror=function(){};ws.onclose=function(){clearInterval(ws._pi);ws._ok=0;renderEx();if(g===gen)setTimeout(function(){if(g===gen)sock(k,url,onopen,onmsg,g)},3000)}}
 function renderEx(){var h="";for(var k in EXN)h+='<span class="'+(socks[k]&&socks[k]._ok?"on":"")+'">'+EXN[k]+"</span>";$("exs").innerHTML=h}
-function setCoin(c){COIN=c;LS("tgb_coin",c);p90=p95=0;mkb=[];tapeQ=[];bids.clear();asks.clear();walls={b:[],a:[]};wallSeen={};figs=[];levels={r:null,s:null};$("tape").innerHTML="";trades=[];sizes=[];p99=p999=0;price=0;bars=[];minutes=[];marks=[];particles=[];sparks=[];chargers=[];pend=[0,0];front=frontT=.5;t0=Date.now();cool={};renderCoins();$("feed").innerHTML="";event("y","⚔️","Битва: "+c,"перші хвилини вчуся, яка тут норма",false,0);connect();haptic("sel")}
+function setCoin(c){COIN=c;if(typeof G!=="undefined"&&G.pick!==null){G.pick=null;$("gUp").disabled=$("gDn").disabled=false;$("gM").innerHTML="🔄 Раунд скасовано — змінив монету."}if(typeof combo!=="undefined"){combo.n=0;wcards=[];brk=[]}LS("tgb_coin",c);p90=p95=0;mkb=[];tapeQ=[];bids.clear();asks.clear();walls={b:[],a:[]};wallSeen={};figs=[];levels={r:null,s:null};$("tape").innerHTML="";trades=[];sizes=[];p99=p999=0;price=0;bars=[];minutes=[];marks=[];particles=[];sparks=[];chargers=[];pend=[0,0];front=frontT=.5;t0=Date.now();cool={};renderCoins();$("feed").innerHTML="";event("y","⚔️","Битва: "+c,"перші хвилини вчуся, яка тут норма",false,0);connect();haptic("sel")}
 function renderCoins(){var h="";for(var c in COINS)h+='<button class="coin'+(c===COIN?" on":"")+'" data-c="'+c+'">'+c+"</button>";$("coins").innerHTML=h;var bs=$("coins").querySelectorAll(".coin");for(var i=0;i<bs.length;i++)bs[i].onclick=function(){if(this.dataset.c!==COIN)setCoin(this.dataset.c)}}
 /* ---------- відгук: вібро, звук, тост ---------- */
 function haptic(kind){if(!vibOn||!TG||!TG.HapticFeedback)return;try{if(kind==="sel")TG.HapticFeedback.selectionChanged();else if(kind==="big")TG.HapticFeedback.notificationOccurred("warning");else TG.HapticFeedback.impactOccurred(kind||"light")}catch(e){}}
@@ -340,7 +340,7 @@ function drawField(T){var W=FW,H=FH,dt=Math.min(3,(T-(drawField.l||T))/16.7)||1;
   fx.beginPath();fx.arc(p.x,p.y,p.r,0,6.283);var col=p.buy?"0,245,147":"255,59,92";fx.fillStyle="rgba("+col+","+((p.big?.95:.72)*p.a)+")";if(p.big){fx.shadowColor="#ffc43d";fx.shadowBlur=14*DPR}fx.fill();fx.shadowBlur=0;
   if(p.big){fx.strokeStyle="#ffc43d";fx.lineWidth=2*DPR;fx.stroke()}if(p.big&&p.usd>=2.5*p99){fx.fillStyle="#fff";fx.font="800 "+(10*DPR)+"px Inter,sans-serif";fx.textAlign="center";fx.fillText(fU(p.usd),p.x,p.y-p.r-5*DPR)}}
  for(i=chargers.length-1;i>=0;i--){var h=chargers[i];h.x+=h.v*dt;h.ph+=.15*dt;emoji(fx,h.buy?"🐂":"🐻",h.x,h.y+Math.sin(h.ph)*5*DPR,h.sz,h.buy);fx.fillStyle=h.buy?"#00f593":"#ff3b5c";fx.font="900 "+(12*DPR)+"px Inter,sans-serif";fx.textAlign="center";fx.fillText(h.lab,h.x,h.y-h.sz*.6);
-  if(h.buy?h.x+h.sz*.3>=X:h.x-h.sz*.3<=X){burst(X,h.y,h.buy?"#00f593":"#ff3b5c",50,8);burst(X,h.y,"#ffc43d",20,5);kick+=(h.buy?1:-1)*.05;haptic("heavy");chargers.splice(i,1)}}
+  if(h.buy?h.x+h.sz*.3>=X:h.x-h.sz*.3<=X){burst(X,h.y,h.buy?"#00f593":"#ff3b5c",50,8);burst(X,h.y,"#ffc43d",20,5);if(!h.fan)kick+=(h.buy?1:-1)*.05;haptic(h.fan?"light":"heavy");chargers.splice(i,1)}}
  for(i=sparks.length-1;i>=0;i--){var s=sparks[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.vy+=.05*DPR*dt;s.l-=.024*dt;if(s.l<=0){sparks.splice(i,1);continue}fx.globalAlpha=s.l;fx.fillStyle=s.c;fx.fillRect(s.x,s.y,2.4*DPR,2.4*DPR)}fx.globalAlpha=1;
  var bp=Math.round(front*100);fx.font="900 "+(22*DPR)+"px Inter,sans-serif";fx.textBaseline="top";fx.textAlign="left";fx.fillStyle="#00f593";fx.fillText(bp+"%",12*DPR,10*DPR);fx.textAlign="right";fx.fillStyle="#ff3b5c";fx.fillText((100-bp)+"%",W-12*DPR,10*DPR);fx.textBaseline="alphabetic";
  if(!price){fx.fillStyle="#8a90a2";fx.font="700 "+(14*DPR)+"px Inter,sans-serif";fx.textAlign="center";fx.fillText("Підключаюсь до бірж…",W/2,H/2)}}
@@ -407,7 +407,7 @@ var brk=[];setInterval(function(){if(!price||Date.now()-t0<180000)return;var r=l
 var G={w:+(LS("tgb_w")||0),s:0,best:+(LS("tgb_best")||0),pick:null,p0:0,t0:0};
 function gUpd(){$("gW").textContent=G.w;$("gS").textContent=G.s}
 function gPick(up){if(G.pick!==null||!price)return;G.pick=up;G.p0=price;G.t0=Date.now();$("gUp").disabled=$("gDn").disabled=true;$("gM").innerHTML=(up?"🐂 Ти за биків":"🐻 Ти за ведмедів")+" від <b>"+fP(price)+"</b>… тримайся!";haptic("medium");
- chargers.push({buy:up,x:up?-60*DPR:FW+60*DPR,y:FH*.5,sz:Math.round(70*DPR),v:(up?1:-1)*6*DPR,lab:up?"ТВІЙ БИК 🐂":"ТВІЙ ВЕДМІДЬ 🐻",ph:0})}
+ chargers.push({buy:up,x:up?-60*DPR:FW+60*DPR,y:FH*.5,sz:Math.round(70*DPR),v:(up?1:-1)*6*DPR,lab:up?"ТВІЙ БИК 🐂":"ТВІЙ ВЕДМІДЬ 🐻",ph:0,fan:true})}
 $("gUp").onclick=function(){gPick(true)};$("gDn").onclick=function(){gPick(false)};
 setInterval(function(){if(G.pick===null){$("gT").style.width="0";return}var el=Date.now()-G.t0,pc=Math.min(100,el/600);$("gT").style.width=pc+"%";
  var d=price-G.p0,lead=(d>0)===G.pick&&d!==0;if(el<60000){$("gM").innerHTML=(G.pick?"🐂":"🐻")+" "+(d===0?"поки нічия":(lead?"<span style='color:var(--g)'>виграєш</span>":"<span style='color:var(--r)'>програєш</span>"))+" · "+(d>=0?"+":"−")+"$"+Math.abs(d).toFixed(price>=1?2:5)+" · "+Math.ceil((60000-el)/1000)+" с";return}
@@ -458,8 +458,8 @@ function mktHit(ev){var r=MK.getBoundingClientRect(),x=(ev.clientX-r.left)*DPR,y
  if(best&&bd<14*DPR){showTip(ev.clientX,ev.clientY,best.html,best.col);if(ev.type==="pointerdown")haptic("light")}else if(ev.type==="pointerdown")tip.style.display="none"}
 MK.addEventListener("pointermove",mktHit);MK.addEventListener("pointerdown",mktHit);MK.addEventListener("pointerleave",function(){tip.style.display="none"});
 var votes={b:0,s:0};F.addEventListener("pointerdown",function(ev){var r=F.getBoundingClientRect(),x=(ev.clientX-r.left)*DPR,y=(ev.clientY-r.top)*DPR,bull=x<front*FW;votes[bull?"b":"s"]++;
- burst(x,y,bull?"#00f593":"#ff3b5c",26,5);chargers.push({buy:bull,x:x,y:y,sz:Math.round(46*DPR),v:(bull?1:-1)*6*DPR,lab:bull?"+1 🐂 твій голос":"+1 🐻 твій голос",ph:0});kick+=(bull?1:-1)*.012;haptic("medium");
- if((votes.b+votes.s)%10===0)event("y","🗳️","Твої голоси: 🐂 "+votes.b+" · 🐻 "+votes.s,"тисни на поле — підтримуй свою сторону",false,0)});
+ burst(x,y,bull?"#00f593":"#ff3b5c",26,5);chargers.push({buy:bull,x:x,y:y,sz:Math.round(46*DPR),v:(bull?1:-1)*6*DPR,lab:bull?"+1 🐂 твій голос":"+1 🐻 твій голос",ph:0,fan:true});haptic("medium");
+ if((votes.b+votes.s)%10===0)event("y","🗳️","Твої голоси: 🐂 "+votes.b+" · 🐻 "+votes.s,"голоси фанатів — на ціну не впливають, фронт рухає лише ринок",false,0)});
 function loop(T){if(WIDE||VIEW==="battle"){drawField(T);drawExtras(T)}if(WIDE||VIEW==="market")drawMarket(T);if(!loop.c||T-loop.c>300){loop.c=T;drawChart()}if(price){var el=$("px");if(price!==shownPx){el.style.color=price>shownPx?"#00f593":"#ff3b5c";clearTimeout(el._t);el._t=setTimeout(function(){el.style.color=""},300);shownPx=price}el.textContent=fP(price)}requestAnimationFrame(loop)}
 $("bLang").textContent=EN?"🇺🇦":"🇬🇧";$("bLang").onclick=function(){LS("tgb_lang",EN?"uk":"en");location.reload()};renderCoins();upBtn();setView(VIEW);layout();initFs();connect();requestAnimationFrame(loop);
 event("y","⚔️","Битва: "+COIN,"перші 5 хвилин вчуся, яка тут норма обсягів",false,0);
