@@ -19,3 +19,4 @@ jobs:
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHANNEL: "@BullBearLive"
+          PYTHONUNBUFFERED: "1"

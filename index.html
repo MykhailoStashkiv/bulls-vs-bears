@@ -120,6 +120,7 @@ body.wide .logo{font-size:22px}
   <div id="pFeed"><div id="feed"></div></div>
   <div id="pChart" style="display:none"><canvas id="chart"></canvas></div>
   <button class="share" id="bShare">📣 Покликати друга в битву</button>
+  <button class="share" id="bStar" style="border-color:#ffc43d66">⭐ Підтримати BullBear зіркою</button>
   <div class="foot">Кожна кулька — реальна угода на Coinbase, Kraken, Bybit і OKX: зелені — купівлі по ринку, червоні — продажі. Це візуалізація ринку, а не торгова порада.<div class="ex" id="exs"></div></div>
 </div>
 <script>
@@ -216,7 +217,7 @@ var DICT=[
 ["Я вгадав ","I called "],
 ["🎯 Раунд 60 с: куди піде ціна?","🎯 60-sec round: where's price going?"],
 ["🐂 Вгору","🐂 Up"],["🐻 Вниз","🐻 Down"],
-["📣 Покликати друга в битву","📣 Invite a friend to the battle"],
+["📣 Покликати друга в битву","📣 Invite a friend to the battle"],["⭐ Підтримати BullBear зіркою","⭐ Support BullBear with a Star"],
 ["🐂 Бики тиснуть","🐂 Bulls pushing"],["🐻 Ведмеді тиснуть","🐻 Bears pushing"],["⚖️ Рівновага","⚖️ Balanced"],
 ["ціна стоїть","price flat"],["ціна ↑ ","price ↑ "],["ціна ↓ ","price ↓ "],
 ["тиск за хвилину","pressure, last minute"],
@@ -413,6 +414,7 @@ setInterval(function(){if(G.pick===null){$("gT").style.width="0";return}var el=D
  var win=d!==0&&(d>0)===G.pick;if(d===0){$("gM").innerHTML="🤝 Нічия — ціна не зрушила. Ще раз!"}else if(win){G.w++;G.s++;if(G.s>G.best){G.best=G.s;LS("tgb_best",G.best)}LS("tgb_w",G.w);$("gM").innerHTML="🎉 <b style='color:var(--g)'>Вгадав!</b> Серія 🔥"+G.s+(G.s>=3?" — ти в ударі!":"");bigFX(G.pick,0,G.s>=3?2.6:1.4,(G.s>=3?"🔥 СЕРІЯ "+G.s+"!":"🎯 ВГАДАВ!")+"<small>"+(G.pick?"бики":"ведмеді")+" не підвели</small>")}
  else{G.s=0;$("gM").innerHTML="😬 <b style='color:var(--r)'>Не вгадав.</b> Ринок — він такий. Реванш?";document.body.classList.remove("fx-shake");void document.body.offsetWidth;document.body.classList.add("fx-shake");haptic("heavy")}
  G.pick=null;$("gUp").disabled=$("gDn").disabled=false;gUpd()},250);gUpd();
+$("bStar").onclick=function(){var u="https://t.me/BullBearLive";try{if(TG&&TG.openTelegramLink)TG.openTelegramLink(u);else window.open(u,"_blank")}catch(e){window.open(u,"_blank")}haptic("medium")};
 $("bShare").onclick=function(){var t=G.best>=2?"Я вгадав "+G.best+" раунди поспіль у битві биків і ведмедів 🐂⚔️🐻 Спробуй перебити!":"Дивись, як бики б'ються з ведмедями на крипторинку наживо 🐂⚔️🐻",u="https://t.me/share/url?url="+encodeURIComponent("https://t.me/BullBearLiveBot")+"&text="+encodeURIComponent(t);try{if(TG&&TG.openTelegramLink)TG.openTelegramLink(u);else window.open(u,"_blank")}catch(e){window.open(u,"_blank")}haptic("medium")};
 /* ---------- жвавість поля: натиски, комбо, карточки китів ---------- */
 var combo={side:null,n:0,t:0},wcards=[];
@@ -440,7 +442,7 @@ function layout(){var w=innerWidth>=900;if(w===WIDE)return;WIDE=w;document.body.
  if(w){wr.appendChild(Lc);wr.appendChild(Rc);mv(document.querySelector(".price"),Lc);mv($("vBattle"),Lc);mv($("game"),Lc);$("game").style.display="";mv($("vMarket"),Lc);
   var h1=document.createElement("h4");h1.className="h4";h1.textContent="⚖️ Тиск сторін";card([h1,document.querySelector(".tug"),$("stats")]);
   var h2=document.createElement("h4");h2.className="h4";h2.textContent="⚡ Події ринку";card([h2,$("pFeed")]);
-  var tp=document.querySelector("#vMarket .h4");card([tp,$("tape")]);mv($("bShare"),Rc);mv(document.querySelector(".foot"),Rc);
+  var tp=document.querySelector("#vMarket .h4");card([tp,$("tape")]);mv($("bShare"),Rc);mv($("bStar"),Rc);mv(document.querySelector(".foot"),Rc);
   $("vBattle").style.display="";$("vMarket").style.display="";$("pFeed").style.display="";$("pChart").style.display="none"}
  else{for(var i=moved.length-1;i>=0;i--){var m=moved[i];m.p.insertBefore(m.n,m.nx)}moved=[];Lc.remove();Rc.innerHTML="";Rc.remove();var hs=document.querySelectorAll(".card");for(i=0;i<hs.length;i++)hs[i].remove();setView(VIEW)}
  size()}

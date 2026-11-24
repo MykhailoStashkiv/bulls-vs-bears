@@ -95,16 +95,16 @@ def draw(trades, a, path):
     for s in ax.spines.values():
         s.set_visible(False)
     ax.grid(color="#ffffff", alpha=0.05)
-    ax.set_xlabel("хвилини тому →  зараз", color="#8a90a2", fontsize=10)
+    ax.set_xlabel("minutes ago  →  now", color="#8a90a2", fontsize=10)
     ax.yaxis.tick_right()
 
     tot = a["buy"] + a["sell"] or 1
     bp = a["buy"] / tot
     chg = (a["p1"] / a["p0"] - 1) * 100
-    win = "БИКИ" if bp >= 0.5 else "ВЕДМЕДІ"
+    win = "BULLS" if bp >= 0.5 else "BEARS"
     fig.text(0.06, 0.9, f"{COIN}  {a['p1']:,.2f}", color="#e8eaf0", fontsize=30, weight="bold")
-    fig.text(0.06, 0.845, f"{'+' if chg >= 0 else '−'}{abs(chg):.2f}% за годину", color=g if chg >= 0 else r, fontsize=14, weight="bold")
-    fig.text(0.92, 0.9, f"ГОДИНУ ВИГРАЛИ {win}", color=g if bp >= 0.5 else r, fontsize=22, weight="bold", ha="right")
+    fig.text(0.06, 0.845, f"{'+' if chg >= 0 else '−'}{abs(chg):.2f}% last hour", color=g if chg >= 0 else r, fontsize=14, weight="bold")
+    fig.text(0.92, 0.9, f"{win} WON THE HOUR", color=g if bp >= 0.5 else r, fontsize=22, weight="bold", ha="right")
     fig.text(0.92, 0.85, "BullBear · Kraken", color="#8a90a2", fontsize=11, ha="right")
 
     bar = fig.add_axes([0.06, 0.07, 0.86, 0.05])
@@ -113,8 +113,8 @@ def draw(trades, a, path):
     bar.axvline(0.5, color="white", lw=2, alpha=0.7)
     bar.set_xlim(0, 1)
     bar.axis("off")
-    fig.text(0.06, 0.13, f"Бики {bp * 100:.0f}% · {fu(a['buy'])}", color=g, fontsize=13, weight="bold")
-    fig.text(0.92, 0.13, f"{fu(a['sell'])} · {(1 - bp) * 100:.0f}% Ведмеді", color=r, fontsize=13, weight="bold", ha="right")
+    fig.text(0.06, 0.13, f"Bulls {bp * 100:.0f}% · {fu(a['buy'])}", color=g, fontsize=13, weight="bold")
+    fig.text(0.92, 0.13, f"{fu(a['sell'])} · {(1 - bp) * 100:.0f}% Bears", color=r, fontsize=13, weight="bold", ha="right")
     fig.savefig(path, facecolor=bg)
     plt.close(fig)
 
@@ -123,25 +123,32 @@ def caption(a):
     tot = a["buy"] + a["sell"] or 1
     bp = round(a["buy"] / tot * 100)
     chg = (a["p1"] / a["p0"] - 1) * 100
-    head = "🐂 Годину виграли БИКИ!" if bp >= 50 else "🐻 Годину виграли ВЕДМЕДІ!"
+    bull = bp >= 50
+    sign = "+" if chg >= 0 else "−"
     lines = [
-        f"<b>{head}</b>",
+        "<b>🐂 BULLS WON THE HOUR!</b>" if bull else "<b>🐻 BEARS WON THE HOUR!</b>",
+        "🇺🇦 " + ("Годину виграли БИКИ" if bull else "Годину виграли ВЕДМЕДІ"),
         "",
-        f"{COIN}: <b>{a['p1']:,.2f}</b> ({'+' if chg >= 0 else '−'}{abs(chg):.2f}% за годину)",
+        f"{COIN}: <b>{a['p1']:,.2f}</b> ({sign}{abs(chg):.2f}%)",
         f"🐂 {bp}% · {fu(a['buy'])}   vs   {fu(a['sell'])} · {100 - bp}% 🐻",
-        f"Діапазон: {a['lo']:,.0f} – {a['hi']:,.0f}",
+        f"Range: {a['lo']:,.0f} – {a['hi']:,.0f}",
         "",
-        "🐋 <b>Найбільші кити години:</b>",
+        "🐋 <b>Top whales / Найбільші кити:</b>",
     ]
     for t, p, v, b in a["whales"]:
-        lines.append(f"{'🟢 купив' if b else '🔴 продав'} {v:.2f} {COIN} · {fu(p * v)} по {p:,.0f}")
-    lines += ["", "Дивись битву наживо 👇", "<i>Візуалізація ринку, не торгова порада.</i>"]
+        lines.append(f"{'🟢 bought' if b else '🔴 sold'} {v:.2f} {COIN} · {fu(p * v)} @ {p:,.0f}")
+    lines += [
+        "",
+        "⚔️ Watch the battle live 👇 Дивись битву наживо",
+        "⭐ Like it? Tap a star reaction to support / Подобається — підтримай зіркою",
+        "<i>Market visualization, not trading advice.</i>",
+    ]
     return "\n".join(lines)
 
 
 def send(token, chat, photo, text):
     boundary = "----bullbear" + str(int(time.time()))
-    markup = json.dumps({"inline_keyboard": [[{"text": "⚔️ Відкрити битву", "url": BOT_URL}]]})
+    markup = json.dumps({"inline_keyboard": [[{"text": "⚔️ Open the battle / Відкрити битву", "url": BOT_URL}]]})
     fields = {"chat_id": chat, "caption": text, "parse_mode": "HTML", "reply_markup": markup}
     body = b""
     for k, v in fields.items():
