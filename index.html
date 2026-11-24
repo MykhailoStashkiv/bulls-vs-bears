@@ -133,13 +133,13 @@ body.wide .logo{font-size:22px}
     <h3><span>👊 Перетапай друга за 60 с</span><small id="dRec">🏆 0 перемог</small></h3>
     <div class="dsb"><div class="pl g"><span id="dNB">🐂 Ти</span><b id="dTB">0</b></div><div class="tmr" id="dTm">60</div><div class="pl r"><span id="dNS">🐻 Суперник</span><b id="dTS">0</b></div></div>
     <button class="tapbtn" id="bTap">👆 ТАП!</button>
-    <div class="dmsg" id="dM">Тапай швидше за друга й штовхай лінію. Ціна теж тисне: зростає — допомагає 🐂, падає — допомагає 🐻.</div>
+    <div class="dmsg" id="dM">Тапай швидше за друга й штовхай лінію. Ціна теж тисне: зростає — допомагає 🐂, падає — допомагає 🐻. Тапни по полю зліва чи справа від лінії — і поштовхай її просто так.</div>
     <div class="dbtns" id="dBtns"><button class="pri" id="bDuel">👥 Кинути виклик другу</button><button id="bBot">🤖 Грати з ботом</button></div>
     <div class="lb2" id="dTop"></div>
   </div>
   <div class="game" id="game"><div class="gt"><span>🎯 Раунд 60 с: куди піде ціна?</span><span class="gs">🏆 <b id="gW">0</b> · 🔥 <b id="gS">0</b></span></div>
     <div class="gb"><button class="up" id="gUp">🐂 Вгору</button><button class="dn" id="gDn">🐻 Вниз</button></div>
-    <div class="tm"><i id="gT"></i></div><div class="gs" style="margin-top:6px;font-weight:700">👆 Тапай по полю — голос фанатів. На ціну він не впливає: фронт рухають лише реальні угоди.</div><div class="gm" id="gM">Обери сторону — через 60 секунд дізнаєшся, чи вгадав.</div></div>
+    <div class="tm"><i id="gT"></i></div><div class="gm" id="gM">Обери сторону — через 60 секунд дізнаєшся, чи вгадав.</div></div>
   <div id="vMarket" style="display:none"><canvas id="mkt"></canvas>
     <div class="leg"><span><i style="background:#00f593"></i>купили</span><span><i style="background:#ff3b5c"></i>продали</span><span><i style="background:#ffc43d"></i>кит</span><span><b style="color:#ff8095">▬</b> стіна продавців</span><span><b style="color:#5cf5b5">▬</b> стіна покупців</span><span>┄ опір / підтримка</span></div>
     <h4 class="h4">🌊 Живий потік ринку</h4><div id="tape"></div></div>
@@ -163,7 +163,7 @@ function LS(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorag
 var LANG=(function(){var c=(TG&&TG.initDataUnsafe&&TG.initDataUnsafe.user&&TG.initDataUnsafe.user.language_code)||navigator.language||"en";c=(c||"en").toLowerCase();var f=LS("tgb_lang");if(f)return f;return /^(uk|ru|be)/.test(c)?"uk":"en"})();
 var EN=LANG==="en";
 var DICT=[
-["Тапай швидше за друга й штовхай лінію. Ціна теж тисне: зростає — допомагає 🐂, падає — допомагає 🐻.","Tap faster than your friend and push the line. Price pushes too: up helps 🐂, down helps 🐻."],
+["Тапай швидше за друга й штовхай лінію. Ціна теж тисне: зростає — допомагає 🐂, падає — допомагає 🐻. Тапни по полю зліва чи справа від лінії — і поштовхай її просто так.","Tap faster than your friend and push the line. Price pushes too: up helps 🐂, down helps 🐻. Tap the field left or right of the line to push it anytime."],["Твої тапи: 🐂 ","Your taps: 🐂 "],["тапи штовхають лінію; реальну ціну вони не змінюють","taps push the line; they don't change the real price"],
 ["👊 Перетапай друга за 60 с","👊 Out-tap a friend in 60 s"],["👥 Кинути виклик другу","👥 Challenge a friend"],["🤖 Грати з ботом","🤖 Play vs bot"],
 ["👆 ТАП ЗА 🐂!","👆 TAP FOR 🐂!"],["👆 ТАП ЗА 🐻!","👆 TAP FOR 🐻!"],["👆 ТАП!","👆 TAP!"],
 [" перемог"," wins"],["🏆 Перемог","🏆 Wins"],["🔥 Серія зараз","🔥 Current streak"],["👆 Рекорд тапів за раунд","👆 Best taps in a round"],
@@ -375,7 +375,7 @@ function burst(x,y,col,n,sp){for(var i=0;i<n;i++){var a=Math.random()*6.28,v=(1+
 var SPR={};function sprite(e,s,flip){var k=e+s+(flip?1:0),c=SPR[k];if(c)return c;c=document.createElement("canvas");var p=Math.ceil(s*1.35);c.width=c.height=p;var g=c.getContext("2d");g.font=s+"px 'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif";g.textAlign="center";g.textBaseline="middle";if(flip){g.translate(p/2,p/2);g.scale(-1,1);g.fillText(e,0,0)}else g.fillText(e,p/2,p/2);SPR[k]=c;return c}
 function emoji(ctx,e,x,y,s,flip,alpha){s=Math.max(8,Math.round(s/4)*4);var c=sprite(e,s,flip);ctx.globalAlpha=alpha==null?1:alpha;ctx.drawImage(c,x-c.width/2,y-c.height/2);ctx.globalAlpha=1}
 function drawField(T){var W=FW,H=FH,dt=Math.min(3,(T-(drawField.l||T))/16.7)||1;drawField.l=T;fx.clearRect(0,0,W,H);
- kick*=Math.pow(.97,dt);front+=((frontT+kick)-front)*(1-Math.pow(.98,dt));front=Math.max(.1,Math.min(.9,front));var X=front*W,y,i;
+ kick*=Math.pow(.992,dt);front+=((frontT+kick)-front)*(1-Math.pow(.98,dt));front=Math.max(.1,Math.min(.9,front));var X=front*W,y,i;
  var g1=fx.createLinearGradient(0,0,X,0);g1.addColorStop(0,"rgba(0,245,147,.30)");g1.addColorStop(1,"rgba(0,245,147,.06)");fx.fillStyle=g1;fx.fillRect(0,0,X,H);
  var g2=fx.createLinearGradient(X,0,W,0);g2.addColorStop(0,"rgba(255,59,92,.06)");g2.addColorStop(1,"rgba(255,59,92,.30)");fx.fillStyle=g2;fx.fillRect(X,0,W-X,H);
  emoji(fx,"🐂",X*.45,H*.58,(60+front*110)*DPR,true,.2+front*.25);emoji(fx,"🐻",X+(W-X)*.55,H*.58,(60+(1-front)*110)*DPR,false,.2+(1-front)*.25);
@@ -490,7 +490,7 @@ function dTapLocal(side){if(side==="b")D.tb++;else D.ts++}
 function duelTap(ev){if(!D.live)return;haptic("light");var X=front*FW,y=ev&&ev.clientY?((ev.clientY-F.getBoundingClientRect().top)*DPR):FH*(.2+Math.random()*.6);burst(X,y,D.me==="b"?"#00f593":"#ff3b5c",10,4);
  if(D.mode==="guest"){if(D.conn&&D.conn.open)D.conn.send({t:"tap"});D.ts++}else dTapLocal(D.me);
  var mine=D.me==="b"?D.tb:D.ts;if(mine%10===0)chargers.push({buy:D.me==="b",x:D.me==="b"?-40*DPR:FW+40*DPR,y:FH*(.25+Math.random()*.5),sz:Math.round(54*DPR),v:(D.me==="b"?1:-1)*7*DPR,lab:"×"+mine,ph:0,fan:true})}
-$("bTap").addEventListener("pointerdown",function(e){e.preventDefault();duelTap()});
+$("bTap").addEventListener("pointerdown",function(e){e.preventDefault();if(!D.on){$("bBot").click();return}duelTap()});
 function dEnd(w){if(!D.on)return;D.live=false;D.on=false;var won=w===D.me;DS.g++;var mine=D.me==="b"?D.tb:D.ts;if(mine>DS.best)DS.best=mine;if(won){DS.w++;DS.st++}else DS.st=0;dSave();dTop();
  if(D.mode==="host"&&D.conn&&D.conn.open)D.conn.send({t:"end",w:w,tb:D.tb,ts:D.ts});
  if(won){bigFX(D.me==="b",0,DS.st>=3?3:2,(DS.st>=3?"🔥 СЕРІЯ "+DS.st+"!":"🏆 ПЕРЕМОГА!")+"<small>"+mine+" тапів</small>");dMsg("🏆 <b style='color:var(--g)'>Ти перетапав!</b> "+D.tb+" : "+D.ts+". Кинь виклик ще комусь 👇")}
@@ -547,8 +547,8 @@ function mktHit(ev){var r=MK.getBoundingClientRect(),x=(ev.clientX-r.left)*DPR,y
  if(best&&bd<14*DPR){showTip(ev.clientX,ev.clientY,best.html,best.col);if(ev.type==="pointerdown")haptic("light")}else if(ev.type==="pointerdown")tip.style.display="none"}
 MK.addEventListener("pointermove",mktHit);MK.addEventListener("pointerdown",mktHit);MK.addEventListener("pointerleave",function(){tip.style.display="none"});
 var votes={b:0,s:0};F.addEventListener("pointerdown",function(ev){if(duelOn()){duelTap(ev);return}var r=F.getBoundingClientRect(),x=(ev.clientX-r.left)*DPR,y=(ev.clientY-r.top)*DPR,bull=x<front*FW;votes[bull?"b":"s"]++;
- burst(x,y,bull?"#00f593":"#ff3b5c",26,5);chargers.push({buy:bull,x:x,y:y,sz:Math.round(46*DPR),v:(bull?1:-1)*6*DPR,lab:bull?"+1 🐂 твій голос":"+1 🐻 твій голос",ph:0,fan:true});haptic("medium");
- if((votes.b+votes.s)%10===0)event("y","🗳️","Твої голоси: 🐂 "+votes.b+" · 🐻 "+votes.s,"голоси фанатів — на ціну не впливають, фронт рухає лише ринок",false,0)});
+ burst(x,y,bull?"#00f593":"#ff3b5c",26,5);chargers.push({buy:bull,x:x,y:y,sz:Math.round(46*DPR),v:(bull?1:-1)*6*DPR,lab:bull?"+1 🐂":"+1 🐻",ph:0,fan:true});kick=Math.max(-.35,Math.min(.35,kick+(bull?1:-1)*.035));haptic("light");
+ if((votes.b+votes.s)%10===0)event("y","👆","Твої тапи: 🐂 "+votes.b+" · 🐻 "+votes.s,"тапи штовхають лінію; реальну ціну вони не змінюють",false,0)});
 function loop(T){if(WIDE||VIEW==="battle"){drawField(T);drawExtras(T)}if(WIDE||VIEW==="market")drawMarket(T);if(!loop.c||T-loop.c>300){loop.c=T;drawChart()}if(price){var el=$("px");if(price!==shownPx){el.style.color=price>shownPx?"#00f593":"#ff3b5c";clearTimeout(el._t);el._t=setTimeout(function(){el.style.color=""},300);shownPx=price}el.textContent=fP(price)}requestAnimationFrame(loop)}
 $("bLang").textContent=EN?"🇺🇦":"🇬🇧";$("bLang").onclick=function(){LS("tgb_lang",EN?"uk":"en");location.reload()};renderCoins();upBtn();setView(VIEW);layout();initFs();connect();requestAnimationFrame(loop);
 event("y","⚔️","Битва: "+COIN,"перші 5 хвилин вчуся, яка тут норма обсягів",false,0);
