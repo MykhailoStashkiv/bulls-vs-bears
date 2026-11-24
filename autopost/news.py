@@ -115,7 +115,8 @@ def to_uk(texts):
 
 
 def ai_text(items, mk):
-    key = os.environ.get("ANTHROPIC_API_KEY")
+    key = (os.environ.get("ANTHROPIC_API_KEY") or "").strip()
+    print("ключ ШІ: довжина", len(key), "| формат sk-ant:", key.startswith("sk-ant-"))
     if not key:
         return None
     heads = "\n".join(f"- [{x['src']}] {x['title']} — {x['desc'][:180]}" for x in items[:12])
